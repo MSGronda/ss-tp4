@@ -22,14 +22,16 @@ public class SimulationGearPredictorCorrector extends Simulation {
         double m4 = m3 * mass;
         double g4 = g3 * gamma;
 
+        double k2 = springConstant * springConstant;
+
         p = 1;
         p1 = (- p * gamma) / (2 * mass);
         p2 = calcForce(p, p1) / mass;
         p3 = (springConstant * gamma * p) / (m2) + p1 * (- springConstant / mass + (g2) / (m2));
-        p4 = ((springConstant * springConstant) / (m2) - (springConstant * g2) / (m3)) * p
+        p4 = ((k2) / (m2) - (springConstant * g2) / (m3)) * p
                 + ((2 * springConstant * gamma) / (m2) - (g3) / (m2)) * p1;
-        p5 = ((-2 * springConstant * springConstant * gamma) / (m3) + (springConstant * g3) / (m4)) * p
-                + ((springConstant * springConstant) / (m2) - (3 * springConstant * g2) / (m4) + (g4) / (m4)) * p1;
+        p5 = ((-2 * k2 * gamma) / (m3) + (springConstant * g3) / (m4)) * p
+                + ((k2) / (m2) - (3 * springConstant * g2) / (m3) + (g4) / (m4)) * p1;
     }
 
     @Override
@@ -46,7 +48,8 @@ public class SimulationGearPredictorCorrector extends Simulation {
         double predP4 = p4 + p5 * deltaT;
         double predP5 = p5;
 
-        double deltaR2 = (p2 - predP2) *  t2;       // TODO: CHECK
+        double futureA = calcForce(predP, predP2) / mass;
+        double deltaR2 = (futureA - predP2) *  t2;       // TODO: CHECK
 
         double newP = predP + alpha[0] * deltaR2;
         double newP1 = predP1 + alpha[1] * deltaR2 / deltaT;
@@ -65,9 +68,9 @@ public class SimulationGearPredictorCorrector extends Simulation {
         return p;
     }
 
-    public double time(double deltaT, int n) {
+    private static double time(double deltaT, int n) {
         double resp = deltaT;
-        for(int i=1; i<=n; i++){
+        for(int i=1; i<n; i++){
             resp = (resp * deltaT) / (i+1);
         }
         return resp;
