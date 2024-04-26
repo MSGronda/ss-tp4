@@ -2,9 +2,9 @@ from matplotlib import pyplot as plt
 from utils import TIME, POSITION, NAME
 
 
-def graph_positions(data):
+def graph_positions(data, start: int = 0, end: int = -1):
     for d in data:
-        plt.scatter(d[TIME], d[POSITION], marker='o', s=5, label=d[NAME])
+        plt.scatter(d[TIME][start:end], d[POSITION][start:end], marker='o', s=5, label=d[NAME])
     plt.xlabel(f'Tiempo (s)')
     plt.ylabel(f'Posicion (m)')
     plt.grid(True)

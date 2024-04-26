@@ -5,6 +5,6 @@ if __name__ == "__main__":
     data = get_data()
     file = "../output-files/par"
 
-    graph_positions(data)
+    graph_positions([data[1]])
 
 
