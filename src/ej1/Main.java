@@ -8,26 +8,33 @@ public class Main {
         double mass = 70;
         double springConstant = 10000;
         double gamma = 100;
-        double deltaT = 0.01;
+        double deltaT = 0.0001;
         double totalTime = 5;
-        SimulationType type = SimulationType.VERLET;
+        SimulationType type = SimulationType.GEAR_PREDICTOR_CORRECTOR;
 
-        long timestamp = System.currentTimeMillis();
+        double[] deltaTs = {0.000001, 0.000005, 0.00001, 0.00005, 0.0001, 0.0005, 0.001};
 
-        Simulation simulation = instantiateClass(mass, springConstant, gamma, deltaT, type);
-        writeStaticFile(mass, springConstant, gamma, deltaT, type, timestamp);
 
-        double cumulativeTime = 0;
-        try (FileWriter writer = new FileWriter("./python/ej1/output-files/particle-movement-" + timestamp + ".csv")) {
-            while (cumulativeTime < totalTime) {
+//        for (double i = 0.000001 ; i <= 0.00101 ; i += 0.0001665 ) {
+        for (double i : deltaTs ) {
+            deltaT = i;
+            long timestamp = System.currentTimeMillis();
 
-                double pos = simulation.simulate();
-                writer.write(cumulativeTime + "," + pos + "\n");
+            Simulation simulation = instantiateClass(mass, springConstant, gamma, deltaT, type);
+            writeStaticFile(mass, springConstant, gamma, deltaT, type, timestamp);
 
-                cumulativeTime += deltaT;
+            double cumulativeTime = 0;
+            try (FileWriter writer = new FileWriter("./python/ej1/output-files/particle-movement-" + timestamp + ".csv")) {
+                while (cumulativeTime < totalTime) {
+
+                    double pos = simulation.simulate();
+                    writer.write(cumulativeTime + "," + pos + "\n");
+
+                    cumulativeTime += deltaT;
+                }
+            } catch (IOException e) {
+                System.out.println(e);
             }
-        } catch (IOException e) {
-            System.out.println(e);
         }
     }
 
