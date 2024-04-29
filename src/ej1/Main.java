@@ -8,11 +8,11 @@ public class Main {
         double mass = 70;
         double springConstant = 10000;
         double gamma = 100;
-        double deltaT = 0.0001;
+        double deltaT = 0.000001;
         double totalTime = 5;
-        SimulationType type = SimulationType.GEAR_PREDICTOR_CORRECTOR;
+        SimulationType type = SimulationType.BEEMAN;
 
-        double[] deltaTs = {0.000001, 0.000005, 0.00001, 0.00005, 0.0001, 0.0005, 0.001};
+        double[] deltaTs = {0.000001, 0.00001, 0.0001, 0.001, 0.01};
 
 
 //        for (double i = 0.000001 ; i <= 0.00101 ; i += 0.0001665 ) {
@@ -25,12 +25,14 @@ public class Main {
 
             double cumulativeTime = 0;
             try (FileWriter writer = new FileWriter("./python/ej1/output-files/particle-movement-" + timestamp + ".csv")) {
+                writer.write(cumulativeTime + "," + 1 + "\n");
                 while (cumulativeTime < totalTime) {
 
+                    cumulativeTime += deltaT;
                     double pos = simulation.simulate();
                     writer.write(cumulativeTime + "," + pos + "\n");
 
-                    cumulativeTime += deltaT;
+
                 }
             } catch (IOException e) {
                 System.out.println(e);
