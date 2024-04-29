@@ -10,11 +10,15 @@ public class Main {
         double gamma = 100;
         double deltaT = 0.01;
         double totalTime = 5;
-        SimulationType type = SimulationType.GEAR_PREDICTOR_CORRECTOR;
+        SimulationType type = SimulationType.VERLET;
+
+        long timestamp = System.currentTimeMillis();
 
         Simulation simulation = instantiateClass(mass, springConstant, gamma, deltaT, type);
+        writeStaticFile(mass, springConstant, gamma, deltaT, type, timestamp);
+
         double cumulativeTime = 0;
-        try (FileWriter writer = new FileWriter("./python/ej1/output-files/particle-movement-" + type.name() + ".csv")) {
+        try (FileWriter writer = new FileWriter("./python/ej1/output-files/particle-movement-" + timestamp + ".csv")) {
             while (cumulativeTime < totalTime) {
 
                 double pos = simulation.simulate();
@@ -27,8 +31,8 @@ public class Main {
         }
     }
 
-    private static void writeStaticFile(double mass, double springConstant, double gamma, double deltaT, SimulationType type){
-        try(FileWriter writer = new FileWriter("./python/ej1/output-files/static-data-" + type.name() + ".csv")) {
+    private static void writeStaticFile(double mass, double springConstant, double gamma, double deltaT, SimulationType type, long timestamp){
+        try(FileWriter writer = new FileWriter("./python/ej1/output-files/static-data-" + timestamp + ".csv")) {
             writer.write("mass," + mass + "\n");
             writer.write("springConstant," + springConstant + "\n");
             writer.write("gamma," + gamma + "\n");
