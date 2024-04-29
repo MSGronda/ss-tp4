@@ -48,8 +48,8 @@ public class SimulationGearPredictorCorrector extends Simulation {
         double predP4 = p4 + p5 * deltaT;
         double predP5 = p5;
 
-        double futureA = calcForce(predP, predP2) / mass;
-        double deltaR2 = (futureA - predP2) *  t2;       // TODO: CHECK
+        double futureA = calcForce(predP, predP1) / mass;
+        double deltaR2 = (futureA - predP2) *  t2;
 
         double newP = predP + alpha[0] * deltaR2;
         double newP1 = predP1 + alpha[1] * deltaR2 / deltaT;
