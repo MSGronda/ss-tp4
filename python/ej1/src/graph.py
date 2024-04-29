@@ -16,22 +16,18 @@ def graph_positions(data, static_data, start: int = 0, end: int = -1):
 
 
 def graph_error(data, static_data):
-    static = static_data[0]
-
     for d, static in zip(data, static_data):
-        actual_value = []
-
-        for time in d[TIME]:
-            actual_value.append(math.exp(-(static["gamma"] / (2 * static["mass"])) * time) * math.cos(math.sqrt(
-                (static["springConstant"] / static["mass"]) - (
-                            (static["gamma"] * static["gamma"]) / (4 * static["mass"] * static["mass"]))
-            ) * time))
         error = []
+        gamma = static["gamma"]
+        mass = static["mass"]
+        k = static["springConstant"]
 
-        for aprox, actual in zip(d[POSITION], actual_value):
-            error.append(math.pow(aprox - actual, 2))
+        for aprox, time in zip(d[POSITION], d[TIME]):
+            actual_value = math.exp(-(gamma / (2 * mass)) * time) * math.cos(math.sqrt(
+                (k / mass) - ((gamma * gamma) / (4 * mass * mass))) * time)
+            error.append(math.pow(aprox - actual_value, 2))
 
-        average = np.mean(error) / len(error)
+        average = np.mean(error)
 
         if static["type"] == "BEEMAN":
             color = "green"
@@ -43,6 +39,7 @@ def graph_error(data, static_data):
         plt.scatter(static["deltaT"], average, marker='o', s=5, color=color)
 
     plt.yscale("log")
+    plt.xscale("log")
 
     plt.xlabel(f'Delta T (s)')
     plt.ylabel(f'Error cuadratico medio')
