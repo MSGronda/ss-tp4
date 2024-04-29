@@ -49,7 +49,7 @@ public class SimulationBeeman extends Simulation{
     private double calcVelocityCorrected(double position, double prevPosition, double velocity, double prevVelocity, double newPosition, double predictedVelocity){
         double futureAcceleration = calcForce(newPosition, predictedVelocity) / mass;
         double acceleration = calcForce(position, velocity) / mass;
-        double prevAcceleration = calcForce(prevPosition, predictedVelocity) / mass;
+        double prevAcceleration = calcForce(prevPosition, prevVelocity) / mass;
 
         return velocity + (futureAcceleration * deltaT) / 3 + (5 * acceleration * deltaT) / 6 - (prevAcceleration * deltaT) / 6;
     }
