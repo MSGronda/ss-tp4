@@ -1,5 +1,8 @@
 package ej2;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class Simulation {
 
     // Constantes
@@ -68,4 +71,7 @@ public class Simulation {
         return new double[]{forceX, forceY};
     }
 
+    public Body[] getBodies() {
+        return bodies;
+    }
 }

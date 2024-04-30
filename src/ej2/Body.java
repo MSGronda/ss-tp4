@@ -98,8 +98,8 @@ public class Body {
     public BodyType getType() {
         return type;
     }
-    // Setters
 
+    // Setters
     public void setX(double x) {
         this.x = x;
     }
@@ -111,9 +111,13 @@ public class Body {
     public void setVx(double vx) {
         this.vx = vx;
     }
-
     public void setVy(double vy) {
         this.vy = vy;
+    }
+
+    @Override
+    public String toString() {
+        return x + "," + y + "," + vx + "," + vy;
     }
 
     public enum BodyType{
