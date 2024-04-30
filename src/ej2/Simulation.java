@@ -24,19 +24,32 @@ public class Simulation {
     }
 
     public void simulate() {
-        // No se modifica a la posicion y velocidad del sol
-        double[][] forces = new double[2][BODY_AMOUNT];
-
+        // Paso 1: calculamos las fuerzas
+        double[][] forces = new double[BODY_AMOUNT][2];
         for(int i=0; i<BODY_AMOUNT; i++) {
-            if(i == Body.BodyType.SUN.ordinal()){
-                continue;
-            }
-            forces[X][i] = calcTotalForce(i)[X];
-            forces[Y][i] = calcTotalForce(i)[Y];
+            // No se modifica a la posicion y velocidad del sol => no nos importa la fuerza que se aplica sobre el sol
+            if(i == Body.BodyType.SUN.ordinal()){ continue; }
+
+            forces[i] = calcTotalForce(i);  // TODO: check
         }
 
+        // Paso 2: avanzamos la simulacion 1 paso
+        for(int i=0; i<BODY_AMOUNT; i++) {
+            // No se modifica a la posicion y velocidad del sol => no nos importa la fuerza que se aplica sobre el sol
+            if(i == Body.BodyType.SUN.ordinal()){ continue; }
 
+            double m = bodies[i].getM();
 
+            // Actualizamos la posicion
+            bodies[i].nextPosition(deltaT, forces[i][X] / m, forces[i][Y] / m);
+
+            // Con la posicion actualizada, calculamos la fuerzas que va a recibir en el futuro.
+            // TODO: cachear este valor para el futuro
+            double[] futureForces = calcTotalForce(i);
+
+            // Actualizamos la velocidad
+            bodies[i].nextVelocity(deltaT, forces[i][X] / m, forces[i][Y] / m, futureForces[X] / m, futureForces[Y] / m);
+        }
     }
 
     public double[] calcTotalForce(int position){
