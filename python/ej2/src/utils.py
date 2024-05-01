@@ -3,7 +3,7 @@ import glob
 
 
 X = 0
-Y = 0
+Y = 1
 
 
 def get_all_files() -> [str]:
@@ -54,20 +54,17 @@ def get_static_data(filename: str):
     return resp
 
 
-def calc_plane_dimensions(body_data: [], properties: {}):
-
-    # Marte siempre va a ser el mas lejano
-    mars_idx = properties["MARS"]["index"]
-    spaceship_idx = properties["SPACESHIP"]["index"]
+def calc_plane_dimensions(body_data: []):
 
     max_distance = 0
 
     # TODO: optimize using numpy
     for bodies in body_data:
-        current_max_distance = max(bodies[mars_idx][X], bodies[mars_idx][Y], bodies[spaceship_idx][X], bodies[spaceship_idx][Y])
+        for body in bodies:
+            current_max_distance = max(abs(body[X]), abs(body[Y]))
 
-        if current_max_distance > max_distance:
-            max_distance = current_max_distance
+            if current_max_distance > max_distance:
+                max_distance = current_max_distance
 
     return max_distance, max_distance
 

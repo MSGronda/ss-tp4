@@ -15,7 +15,8 @@ public class Util {
                 0,
                 0,
                 695700,
-                1988500 * Math.pow(10, 24), Body.BodyType.SUN
+                1988500 * Math.pow(10, 24),
+                Body.BodyType.SUN
         );
         Body earth = new Body(
                 -1.230026285921387E+08,

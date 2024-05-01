@@ -34,9 +34,9 @@ public class Main {
 
                 simulation.simulate();
 
-                dumpPositions(cumulativeTime, simulation.getBodies(), writer);
-
                 cumulativeTime += deltaT;
+
+                dumpPositions(cumulativeTime, simulation.getBodies(), writer);
             }
         } catch (IOException e) {
             System.out.println(e);;
