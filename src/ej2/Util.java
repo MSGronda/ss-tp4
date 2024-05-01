@@ -49,16 +49,18 @@ public class Util {
     public static Body generateSpaceship(Body sun, Body earth, double spaceshipOrbitDistance, double spaceshipOrbitalSpeed){
         // TODO: check todo
 
-        double xNormalVersor = earth.normalX(sun);
-        double yNormalVersor = earth.normalY(sun);
-        double xTangVersor = earth.tangX(sun);
-        double yTangVersor = earth.tangY(sun);
+        double xNormalVersor = sun.normalX(earth);
+        double yNormalVersor = sun.normalY(earth);
+        double xTangVersor = sun.tangX(earth);
+        double yTangVersor = sun.tangY(earth);
 
         double x = earth.getX() + xNormalVersor * spaceshipOrbitDistance;
         double y = earth.getY() + yNormalVersor * spaceshipOrbitDistance;
 
-        double vx = xTangVersor * spaceshipOrbitalSpeed;
-        double vy = yTangVersor * spaceshipOrbitalSpeed;
+        double cvx = xTangVersor * spaceshipOrbitalSpeed;
+        double vx = earth.getVx() + cvx * earth.getVx() > 0 ? cvx  : - cvx;
+        double cvy = yTangVersor * spaceshipOrbitalSpeed;
+        double vy = earth.getVy() + cvy * earth.getVy() > 0 ? cvy  : - cvy;
 
         return new Body(
                 x,

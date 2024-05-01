@@ -2,6 +2,7 @@ package ej2;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.SQLOutput;
 
 public class Main {
     public static void main(String[] args) {
@@ -11,7 +12,8 @@ public class Main {
         double spaceshipOrbitDistance = 1500;
         double spaceshipOrbitSpeed = 7.12;
 
-        double cutoffTime = 100000;
+        double cutoffTime = deltaT * 1000000;
+        int dumpAfterSteps = 100;
 
         Body[] bodies = Util.generateBodies(spaceshipOrbitDistance, spaceshipOrbitSpeed);
         Simulation simulation = new Simulation(
@@ -26,17 +28,22 @@ public class Main {
 
         try(FileWriter writer = new FileWriter("./python/ej2/output-files/bodies-" + timestamp + ".csv")){
             double cumulativeTime = 0;
+            int cumulativeSteps = 0;
 
             // Posiciones iniciales
             dumpPositions(cumulativeTime, simulation.getBodies(), writer);
 
             while(cumulativeTime < cutoffTime) {
-
                 simulation.simulate();
 
                 cumulativeTime += deltaT;
 
-                dumpPositions(cumulativeTime, simulation.getBodies(), writer);
+                cumulativeSteps++;
+
+                if(cumulativeSteps > dumpAfterSteps) {
+                    dumpPositions(cumulativeTime, simulation.getBodies(), writer);
+                    cumulativeSteps = 0;
+                }
             }
         } catch (IOException e) {
             System.out.println(e);;

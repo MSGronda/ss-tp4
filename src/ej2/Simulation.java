@@ -31,7 +31,9 @@ public class Simulation {
         double[][] forces = new double[BODY_AMOUNT][2];
         for(int i=0; i<BODY_AMOUNT; i++) {
             // No se modifica a la posicion y velocidad del sol => no nos importa la fuerza que se aplica sobre el sol
-            if(i == Body.BodyType.SUN.ordinal()){ continue; }
+            if(i == Body.BodyType.SUN.ordinal()){
+                continue;
+            }
 
             forces[i] = calcTotalForce(i);  // TODO: check
         }
@@ -39,7 +41,9 @@ public class Simulation {
         // Paso 2: avanzamos la simulacion 1 paso
         for(int i=0; i<BODY_AMOUNT; i++) {
             // No se modifica a la posicion y velocidad del sol => no nos importa la fuerza que se aplica sobre el sol
-            if(i == Body.BodyType.SUN.ordinal()){ continue; }
+            if(i == Body.BodyType.SUN.ordinal()){
+                continue;
+            }
 
             double m = bodies[i].getM();
 
