@@ -121,9 +121,9 @@ public class Body {
     }
 
     public enum BodyType{
-        SUN,
         EARTH,
         MARS,
-        SPACESHIP
+        SPACESHIP,
+        SUN         // Dejalo aca
     }
 }

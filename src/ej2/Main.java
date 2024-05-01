@@ -22,7 +22,9 @@ public class Main {
                 deltaT
         );
 
-        try(FileWriter writer = new FileWriter("./python/ej2/output-files/particle-movement-" + timestamp + ".csv")){
+        writeStaticData(simulation.getBodies(), deltaT, spaceshipOrbitDistance, spaceshipOrbitSpeed, timestamp);
+
+        try(FileWriter writer = new FileWriter("./python/ej2/output-files/bodies-" + timestamp + ".csv")){
             double cumulativeTime = 0;
 
             // Posiciones iniciales
@@ -47,7 +49,20 @@ public class Main {
             if(i == Body.BodyType.SUN.ordinal()){ continue; }
 
             Body body = bodies[i];
-            fileWriter.write(body.getX() + "," + body.getY() + "," + body.getType().name() + "\n");
+            fileWriter.write(body.getX() + "," + body.getY() + "\n");
+        }
+    }
+
+    public static void writeStaticData(Body[] bodies, double deltaT, double spaceshipOrbitDistance, double spaceshipOrbitSpeed, long timestamp) {
+        try(FileWriter writer = new FileWriter("./python/ej2/output-files/properties-" + timestamp + ".csv")){
+            writer.write("deltaT," + deltaT + "\n");
+            writer.write("spaceshipOrbitDistance," + spaceshipOrbitDistance + "\n");
+            writer.write("spaceshipOrbitSpeed," + spaceshipOrbitSpeed + "\n");
+            for(Body body : bodies) {
+                writer.write(body.getType().name() + "," + body.getType().ordinal() + "," + body.getM() + "," + body.getR() + "\n");
+            }
+        } catch (IOException e) {
+            System.out.println(e);;
         }
     }
 }
