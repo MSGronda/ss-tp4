@@ -22,17 +22,17 @@ def animate(filename: str, body_data: [], properties: {}, video_width: int, star
     out = cv2.VideoWriter(filename, fourcc, fps, (video_width, video_width))
 
     # Sun
-    sun_r = max(10, int(properties["SUN"]["r"] * plane_scale))  # TODO: change
+    sun_r = max(20, int(properties["SUN"]["r"] * plane_scale))  # TODO: change
     sun_color = (0, 255, 255)
     sun_pos = int(width * plane_scale)
 
     # Earth
-    earth_r = max(3, int(properties["EARTH"]["r"] * plane_scale))
+    earth_r = max(6, int(properties["EARTH"]["r"] * plane_scale))
     earth_idx = properties["EARTH"]["index"]
     earth_color = (255, 0, 0)
 
     # Mars
-    mars_r = max(2, int(properties["MARS"]["r"] * plane_scale))
+    mars_r = max(4, int(properties["MARS"]["r"] * plane_scale))
     mars_idx = properties["MARS"]["index"]
     mars_color = (0, 0, 255)
 

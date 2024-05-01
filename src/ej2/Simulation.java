@@ -14,6 +14,8 @@ public class Simulation {
     private final Body[] bodies = new Body[BODY_AMOUNT];
     private final double deltaT;
 
+    private final double[][] forces = new double[bodies.length][];
+
     public Simulation(Body sun, Body mars, Body earth, Body ship, double deltaT) {
         if(sun.getType() != Body.BodyType.SUN || mars.getType() != Body.BodyType.MARS || earth.getType() != Body.BodyType.EARTH || ship.getType() != Body.BodyType.SPACESHIP){
             throw new RuntimeException("Mandaste algo mal!");
@@ -24,38 +26,35 @@ public class Simulation {
         bodies[mars.getType().ordinal()] = mars;
         bodies[earth.getType().ordinal()] = earth;
         bodies[ship.getType().ordinal()] = ship;
+
+        // Calculo inicial de fuerzas actuales
+        for(int i=0; i<BODY_AMOUNT - 1; i++) {            // No se modifica a la posicion y velocidad del sol => no nos importa la fuerza que se aplica sobre el sol
+            forces[i] = calcTotalForce(i);
+        }
     }
 
     public void simulate() {
-        // Paso 1: calculamos las fuerzas
-        double[][] forces = new double[BODY_AMOUNT][2];
-        for(int i=0; i<BODY_AMOUNT; i++) {
-            // No se modifica a la posicion y velocidad del sol => no nos importa la fuerza que se aplica sobre el sol
-            if(i == Body.BodyType.SUN.ordinal()){
-                continue;
-            }
+        // Paso 0: las fuerzas las tenemos del futureForces del paso anterior
 
-            forces[i] = calcTotalForce(i);  // TODO: check
-        }
-
-        // Paso 2: avanzamos la simulacion 1 paso
-        for(int i=0; i<BODY_AMOUNT; i++) {
-            // No se modifica a la posicion y velocidad del sol => no nos importa la fuerza que se aplica sobre el sol
-            if(i == Body.BodyType.SUN.ordinal()){
-                continue;
-            }
-
+        // Paso 1: avanzamos la simulacion 1 paso
+        for(int i=0; i<BODY_AMOUNT - 1; i++) {            // No se modifica a la posicion y velocidad del sol => no nos importa la fuerza que se aplica sobre el sol
             double m = bodies[i].getM();
 
             // Actualizamos la posicion
             bodies[i].nextPosition(deltaT, forces[i][X] / m, forces[i][Y] / m);
+        }
+        // Paso 2: calculamos las nuevas velocidades
+        for(int i=0; i<BODY_AMOUNT - 1; i++) {            // No se modifica a la posicion y velocidad del sol => no nos importa la fuerza que se aplica sobre el sol
+            double m = bodies[i].getM();
 
             // Con la posicion actualizada, calculamos la fuerzas que va a recibir en el futuro.
-            // TODO: cachear este valor para el futuro
             double[] futureForces = calcTotalForce(i);
 
             // Actualizamos la velocidad
             bodies[i].nextVelocity(deltaT, forces[i][X] / m, forces[i][Y] / m, futureForces[X] / m, futureForces[Y] / m);
+
+            // Cacheamos las fuerzas futuras para usar en el paso uno
+            forces[i] = futureForces;
         }
     }
 
@@ -77,5 +76,11 @@ public class Simulation {
 
     public Body[] getBodies() {
         return bodies;
+    }
+
+    public boolean cutoffCondition(double distanceFromMars){
+        Body mars = bodies[Body.BodyType.MARS.ordinal()];
+        Body spaceship = bodies[Body.BodyType.SPACESHIP.ordinal()];
+        return mars.distanceFrom(spaceship) <= mars.getR() + distanceFromMars;
     }
 }

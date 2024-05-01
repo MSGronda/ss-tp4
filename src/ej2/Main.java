@@ -12,8 +12,9 @@ public class Main {
         double spaceshipOrbitDistance = 1500;
         double spaceshipOrbitSpeed = 7.12;
 
-        double cutoffTime = deltaT * 1000000;
-        int dumpAfterSteps = 100;
+        double cutoffDistance = 4000;
+
+        int dumpAfterSteps = 800;
 
         Body[] bodies = Util.generateBodies(spaceshipOrbitDistance, spaceshipOrbitSpeed);
         Simulation simulation = new Simulation(
@@ -24,6 +25,8 @@ public class Main {
                 deltaT
         );
 
+
+
         writeStaticData(simulation.getBodies(), deltaT, spaceshipOrbitDistance, spaceshipOrbitSpeed, timestamp);
 
         try(FileWriter writer = new FileWriter("./python/ej2/output-files/bodies-" + timestamp + ".csv")){
@@ -33,7 +36,7 @@ public class Main {
             // Posiciones iniciales
             dumpPositions(cumulativeTime, simulation.getBodies(), writer);
 
-            while(cumulativeTime < cutoffTime) {
+            while(!simulation.cutoffCondition(cutoffDistance)) {
                 simulation.simulate();
 
                 cumulativeTime += deltaT;
@@ -45,6 +48,10 @@ public class Main {
                     cumulativeSteps = 0;
                 }
             }
+
+            // Se llego a marte, hay que imprimir la posicion actual
+            dumpPositions(cumulativeTime, simulation.getBodies(), writer);
+
         } catch (IOException e) {
             System.out.println(e);;
         }

@@ -46,7 +46,7 @@ public class Body {
     private static double UGC = 6.693 * Math.pow(10, -20);  // -11 + -9 para conversion a km (en vez de metros)
 
     public double calcForce(Body b2){
-        return (UGC * m * b2.getM())  / Math.pow(distanceFrom(b2), 2);
+        return (UGC * m * b2.getM())  / ((x - b2.x) * (x - b2.x) + (y - b2.y) * (y - b2.y));
     }
 
     public double distanceFrom(Body b2) {
