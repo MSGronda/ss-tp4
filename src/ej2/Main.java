@@ -2,30 +2,75 @@ package ej2;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.SQLOutput;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
+
+    private static final int SECONDS_IN_DAY = 60 * 60 * 24;
+
     public static void main(String[] args) {
-        long timestamp = System.currentTimeMillis();
 
         double deltaT = 100;                    // En segundos
         double spaceshipOrbitDistance = 1500;
-        double spaceshipOrbitSpeed = 7.12;
+        double spaceshipOrbitSpeed = 7.12 + 8;  // TODO: check si es sumar
 
-        double cutoffDistance = 4000;
+        double cutoffDistance = 6000;
+        double cutoffTime = 20000 * SECONDS_IN_DAY;
+
+        testStartingDays(deltaT, spaceshipOrbitDistance, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
+    }
+
+    private static void testStartingDays(double deltaT, double spaceshipOrbitDistance, double spaceshipOrbitSpeed, double cutoffDistance, double cutoffTime){
+        int totalStartingDays = 5000;
+
+        List<Integer> days = new ArrayList<>();
+        for(int i=0; i<totalStartingDays; i++){
+            days.add(i);
+        }
+
+        days.parallelStream().forEach(day  -> {
+            Body[] bodies = Util.generateCelestialBodies();
+            Simulation simulation = new Simulation(
+                    bodies[Body.BodyType.SUN.ordinal()],
+                    bodies[Body.BodyType.MARS.ordinal()],
+                    bodies[Body.BodyType.EARTH.ordinal()],
+                    spaceshipOrbitDistance,
+                    spaceshipOrbitSpeed,
+                    deltaT,
+                    day * SECONDS_IN_DAY
+            );
+            double timeTake = 0;
+            while(!simulation.cutoffCondition(cutoffDistance) && timeTake < cutoffTime){
+                simulation.simulate();
+                timeTake += deltaT;
+            }
+            if(simulation.cutoffCondition(cutoffDistance)){
+                System.out.println("(!!!) Starting day: " + day + ", it took : " + timeTake / SECONDS_IN_DAY + " days to reach the objective. (!!!)");
+            }
+//            else {
+//                System.out.println("Starting day: " + day + " failed to reach objective in an acceptable time (" + cutoffTime / SECONDS_IN_DAY +" days).");
+//            }
+        });
+    }
+
+
+    private static void simulateAndSave(double deltaT, double startingFrom, double spaceshipOrbitDistance, double spaceshipOrbitSpeed, double cutoffDistance){
+        // Hago una simulacion normal y guardo los resultados en un archivo
 
         int dumpAfterSteps = 800;
+        long timestamp = System.currentTimeMillis();
 
-        Body[] bodies = Util.generateBodies(spaceshipOrbitDistance, spaceshipOrbitSpeed);
+        Body[] bodies = Util.generateCelestialBodies();
         Simulation simulation = new Simulation(
                 bodies[Body.BodyType.SUN.ordinal()],
                 bodies[Body.BodyType.MARS.ordinal()],
                 bodies[Body.BodyType.EARTH.ordinal()],
-                bodies[Body.BodyType.SPACESHIP.ordinal()],
-                deltaT
+                spaceshipOrbitDistance,
+                spaceshipOrbitSpeed,
+                deltaT,
+                startingFrom
         );
-
-
 
         writeStaticData(simulation.getBodies(), deltaT, spaceshipOrbitDistance, spaceshipOrbitSpeed, timestamp);
 
@@ -56,6 +101,7 @@ public class Main {
             System.out.println(e);;
         }
     }
+
     public static void dumpPositions(double time, Body[] bodies, FileWriter fileWriter) throws IOException {
         fileWriter.write(time + "\n");
         for(int i=0; i<bodies.length; i++){

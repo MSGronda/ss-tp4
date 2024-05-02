@@ -25,10 +25,10 @@
 
 
 *******************************************************************************
-Ephemeris / WWW_USER Tue Apr 30 09:27:06 2024 Pasadena, USA      / Horizons
+Ephemeris / WWW_USER Thu May  2 07:40:34 2024 Pasadena, USA      / Horizons
 *******************************************************************************
 Target body name: Mars (499)                      {source: mar097}
-Center body name: Solar System Barycenter (0)     {source: DE441}
+Center body name: Sun (10)                        {source: DE441}
 Center-site name: BODY CENTER
 *******************************************************************************
 Start time      : A.D. 2024-Apr-26 00:00:00.0000 TDB
@@ -37,7 +37,7 @@ Step-size       : 1440 minutes
 *******************************************************************************
 Center geodetic : 0.0, 0.0, 0.0                   {E-lon(deg),Lat(deg),Alt(km)}
 Center cylindric: 0.0, 0.0, 0.0                   {E-lon(deg),Dxy(km),Dz(km)}
-Center radii    : (undefined)
+Center radii    : 695700.0, 695700.0, 695700.0 km {Equator_a, b, pole_c}
 Output units    : KM-S
 Calendar mode   : Mixed Julian/Gregorian
 Output type     : GEOMETRIC cartesian states
@@ -49,15 +49,15 @@ JDTDB
    VX    VY    VZ
 *******************************************************************************
 $$SOE
-2460426.500000000 = A.D. 2024-Apr-26 00:00:00.0000 TDB 
- X = 1.747499342937683E+08 Y =-1.092462413483886E+08 Z =-6.560886057340190E+06
- VX= 1.366936519025863E+01 VY= 2.266986633954994E+01 VZ= 1.401502863730464E-01
-2460427.500000000 = A.D. 2024-Apr-27 00:00:00.0000 TDB 
- X = 1.759211007133940E+08 Y =-1.072815152675785E+08 Z =-6.548408288105562E+06
- VX= 1.344070161093869E+01 VY= 2.280948817895823E+01 VZ= 1.486847774341999E-01
+2460426.500000000 = A.D. 2024-Apr-26 00:00:00.0000 TDB
+ X = 1.758500774292310E+08 Y =-1.086968363813986E+08 Z =-6.591335789856747E+06
+ VX= 1.365943796448699E+01 VY= 2.268050972064907E+01 VZ= 1.402777804496793E-01
+2460427.500000000 = A.D. 2024-Apr-27 00:00:00.0000 TDB
+ X = 1.770203855558251E+08 Y =-1.067311913536997E+08 Z =-6.578846983228989E+06
+ VX= 1.343076094301779E+01 VY= 2.282011670732208E+01 VZ= 1.488127785776019E-01
 $$EOE
 *******************************************************************************
- 
+
 TIME
 
   Barycentric Dynamical Time ("TDB" or T_eph) output was requested. This
@@ -68,7 +68,7 @@ variable in the solar system relativistic equations of motion.
 
   TDB runs at a uniform rate of one SI second per second and is independent
 of irregularities in Earth's rotation.
- 
+
 CALENDAR SYSTEM
 
   Mixed calendar mode was active such that calendar dates after AD 1582-Oct-15
@@ -96,9 +96,9 @@ REFERENCE FRAME AND COORDINATES
       X      X-component of position vector (km)
       Y      Y-component of position vector (km)
       Z      Z-component of position vector (km)
-      VX     X-component of velocity vector (km/sec)                           
-      VY     Y-component of velocity vector (km/sec)                           
-      VZ     Z-component of velocity vector (km/sec)                           
+      VX     X-component of velocity vector (km/sec)
+      VY     Y-component of velocity vector (km/sec)
+      VZ     Z-component of velocity vector (km/sec)
 
 ABERRATIONS AND CORRECTIONS
 

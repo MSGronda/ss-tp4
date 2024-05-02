@@ -121,9 +121,10 @@ public class Body {
     }
 
     public enum BodyType{
+        // NO TOCAR EL ORDEN
         EARTH,
         MARS,
         SPACESHIP,
-        SUN         // Dejalo aca
+        SUN
     }
 }

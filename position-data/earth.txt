@@ -30,10 +30,10 @@
 
 
 *******************************************************************************
-Ephemeris / WWW_USER Tue Apr 30 09:22:46 2024 Pasadena, USA      / Horizons
+Ephemeris / WWW_USER Thu May  2 07:39:07 2024 Pasadena, USA      / Horizons
 *******************************************************************************
 Target body name: Earth (399)                     {source: DE441}
-Center body name: Solar System Barycenter (0)     {source: DE441}
+Center body name: Sun (10)                        {source: DE441}
 Center-site name: BODY CENTER
 *******************************************************************************
 Start time      : A.D. 2024-Apr-26 00:00:00.0000 TDB
@@ -42,7 +42,7 @@ Step-size       : 1440 minutes
 *******************************************************************************
 Center geodetic : 0.0, 0.0, 0.0                   {E-lon(deg),Lat(deg),Alt(km)}
 Center cylindric: 0.0, 0.0, 0.0                   {E-lon(deg),Dxy(km),Dz(km)}
-Center radii    : (undefined)
+Center radii    : 695700.0, 695700.0, 695700.0 km {Equator_a, b, pole_c}
 Output units    : KM-S
 Calendar mode   : Mixed Julian/Gregorian
 Output type     : GEOMETRIC cartesian states
@@ -55,11 +55,11 @@ JDTDB
 *******************************************************************************
 $$SOE
 2460426.500000000 = A.D. 2024-Apr-26 00:00:00.0000 TDB 
- X =-1.230026285921387E+08 Y =-8.885940118038680E+07 Z = 3.640458312511444E+04
- VX= 1.699147638530967E+01 VY=-2.424060139046478E+01 VZ= 1.905408286924981E-03
+ X =-1.219024854566760E+08 Y =-8.830999621339682E+07 Z = 5.954850608561188E+03
+ VX= 1.698154915953803E+01 VY=-2.422995800936565E+01 VZ= 2.032902363559685E-03
 2460427.500000000 = A.D. 2024-Apr-27 00:00:00.0000 TDB 
- X =-1.215169906081873E+08 Y =-9.094097128880633E+07 Z = 3.656029172542691E+04
- VX= 1.739749495262255E+01 VY=-2.394281562715412E+01 VZ= 1.692367349223289E-03
+ X =-1.204177057657562E+08 Y =-9.039064737492749E+07 Z = 6.121596602000296E+03
+ VX= 1.738755428470165E+01 VY=-2.393218709879027E+01 VZ= 1.820368492625235E-03
 $$EOE
 *******************************************************************************
  
@@ -126,3 +126,12 @@ Computations by ...
                   scripts        https://ssd.jpl.nasa.gov/ftp/ssd/SCRIPTS
     Author      : Jon.D.Giorgini@jpl.nasa.gov
 *******************************************************************************
+ 
+SSD Logo
+ Site Map
+ Privacy
+ Image Policy
+ Contact Us
+Site Manager: Ryan Park
+Site Design: Alan B. Chamberlin
+URS Clearance: CL#21-4165
