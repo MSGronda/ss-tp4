@@ -55,10 +55,10 @@ public class Util {
         double y = earth.getY() + yNormalVersor * spaceshipOrbitDistance;
 
         double cvx = xTangVersor * spaceshipOrbitalSpeed;
-        double vx = earth.getVx() + cvx * earth.getVx() > 0 ? cvx  : - cvx;
+        double vx = earth.getVx() + (cvx * earth.getVx() > 0 ? cvx  : - cvx);
 
         double cvy = yTangVersor * spaceshipOrbitalSpeed;
-        double vy = earth.getVy() + cvy * earth.getVy() > 0 ? cvy  : - cvy;
+        double vy = earth.getVy() + (cvy * earth.getVy() > 0 ? cvy  : - cvy);
 
         return new Body(
                 x,

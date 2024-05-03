@@ -41,6 +41,9 @@ public class Body {
 
         vx = newVx;
         vy = newVy;
+
+        prevAx = ax;
+        prevAy = ay;
     }
 
     private static double UGC = 6.693 * Math.pow(10, -20);  // -11 + -9 para conversion a km (en vez de metros)
