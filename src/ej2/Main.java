@@ -4,6 +4,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Main {
 
@@ -11,26 +13,23 @@ public class Main {
 
     public static void main(String[] args) {
 
-        double deltaT = 100.0;                    // En segundos
+        double deltaT = 500.0;                    // En segundos
         double spaceshipOrbitDistance = 1500;
         double spaceshipOrbitSpeed = 7.12 + 8;
 
-        double cutoffDistance = 6000;
-        double cutoffTime = 4 * 365 * SECONDS_IN_DAY;
+        double cutoffDistance = 14000;
+        double cutoffTime = 60 * SECONDS_IN_DAY;
 
-        testStartingDays(deltaT,  spaceshipOrbitDistance, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
+//        testDelta();
+        simulateAndSave(deltaT,68304001, spaceshipOrbitDistance, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
     }
     private static void testDelta(){
         double cutoffTime = 31579200;
 
-        List<Double> deltaTs = List.of(7.40e5, 7.425e5, 7.45e5, 7.47e5, 7.5e5);
+        List<Double> deltaTs = List.of(1.0, 10.0, 100.0, 1000.0, 10000.0, 100000.0);
 
         for(Double deltaT : deltaTs){
             Body[] bodies = Util.generateCelestialBodies();
-            Body[] onlyCelestiaBodies = new Body[]{bodies[Body.BodyType.SUN.ordinal()],bodies[Body.BodyType.MARS.ordinal()], bodies[Body.BodyType.EARTH.ordinal()]};
-
-            double energyBefore = calculateTotalEnergy(onlyCelestiaBodies);
-
             Simulation simulation = new Simulation(
                     bodies[Body.BodyType.SUN.ordinal()],
                     bodies[Body.BodyType.MARS.ordinal()],
@@ -40,48 +39,27 @@ public class Main {
                     deltaT,
                     cutoffTime
             );
-            double energyAfter = calculateTotalEnergy(onlyCelestiaBodies);
-
-//            Body earth = simulation.getBodies()[Body.BodyType.EARTH.ordinal()];
-//            Body realEarth = new Body(-1.222909445704976E+08, -8.776988375652307E+07, 1.688906686002370E+01, -2.432486393096968E+01, 0, 0, Body.BodyType.EARTH);
-//
-//            Body mars = simulation.getBodies()[Body.BodyType.MARS.ordinal()];
-//            Body realMars = new Body(-2.342323002211556E+08, 8.466649149852000E+07, -7.329716775397554E+00, -2.071609768210218E+01, 0, 0, Body.BodyType.MARS);
-
-            System.out.println("For deltaT: " + deltaT + " error was: " + (Math.abs(energyAfter - energyBefore)));
         }
 
     }
-    private static double calculateTotalEnergy(Body[] bodies){
-        double UGC = 6.693 * Math.pow(10, -20);
 
-        double totalEnergy = 0;
-        // Energia cinetica
-        for(Body body : bodies){
-            totalEnergy += 0.5 * body.getM() * (body.getVx()* body.getVx() + body.getVx() + body.getVy());
-        }
-        // Energia potencial gravitatoria
-        for(int i=0; i<bodies.length; i++) {
-            for(int j=0; j< bodies.length; j++){
-                if(i == j){
-                    continue;
-                }
-                // TODO: check el -
-                totalEnergy += - (UGC * bodies[i].getM() + bodies[j].getM()) / bodies[i].distanceFrom(bodies[j]);
-            }
-        }
-        return totalEnergy;
-    }
+    private static void testStartingDays(double deltaT, double spaceshipOrbitDistance, double spaceshipOrbitSpeed, double cutoffDistance, double cutoffTime) {
+        int totalStartingMoments = 60 * 24 * 60;
 
-    private static void testStartingDays(double deltaT, double spaceshipOrbitDistance, double spaceshipOrbitSpeed, double cutoffDistance, double cutoffTime){
-        int totalStartingDays = 5000;
-
-        List<Integer> days = new ArrayList<>();
-        for(int i=0; i<totalStartingDays; i++){
-            days.add(i);
+        List<Integer> startingTimes = new ArrayList<>();
+        for (int i = 0; i < totalStartingMoments; i++) {
+            startingTimes.add(i + 790  * SECONDS_IN_DAY);
         }
 
-        days.parallelStream().forEach(day  -> {
+        Object minDistanceLock  = new Object();
+
+        AtomicReference<Double> minDistance = new AtomicReference<>(Double.POSITIVE_INFINITY);
+        AtomicInteger minDistanceDay = new AtomicInteger(-1);
+
+
+        startingTimes.parallelStream().forEach(startingTime -> {
+            double currentMinDistance = Double.POSITIVE_INFINITY;
+
             Body[] bodies = Util.generateCelestialBodies();
             Simulation simulation = new Simulation(
                     bodies[Body.BodyType.SUN.ordinal()],
@@ -90,27 +68,36 @@ public class Main {
                     spaceshipOrbitDistance,
                     spaceshipOrbitSpeed,
                     deltaT,
-                    day * SECONDS_IN_DAY
+                    startingTime
             );
             double timeTake = 0;
-            while(!simulation.cutoffCondition(cutoffDistance) && timeTake < cutoffTime){
+            while (!simulation.cutoffCondition(cutoffDistance) && timeTake < cutoffTime) {
                 simulation.simulate();
                 timeTake += deltaT;
+                Body[] simBodies = simulation.getBodies();
+
+                double distanceFromMars = simBodies[Body.BodyType.MARS.ordinal()].distanceFrom(simBodies[Body.BodyType.SPACESHIP.ordinal()]);
+                if (distanceFromMars < currentMinDistance) {
+                    currentMinDistance = distanceFromMars;
+                }
             }
-            if(simulation.cutoffCondition(cutoffDistance)){
-                System.out.println("(!!!) Starting day: " + day + ", it took : " + timeTake / SECONDS_IN_DAY + " days to reach the objective. (!!!)");
+            synchronized (minDistanceLock){
+                if(minDistance.get() > currentMinDistance){
+                    minDistance.set(currentMinDistance);
+                    minDistanceDay.set(startingTime);
+                }
             }
-//            else {
-//                System.out.println("Starting day: " + day + " failed to reach objective in an acceptable time (" + cutoffTime / SECONDS_IN_DAY +" days).");
-//            }
         });
+
+        System.out.println("Best moment: " + minDistanceDay.get() + " with a min distance of : " + minDistance.get() + "\n");
+
     }
 
 
     private static void simulateAndSave(double deltaT, double startingFrom, double spaceshipOrbitDistance, double spaceshipOrbitSpeed, double cutoffDistance, double cutoffTime){
         // Hago una simulacion normal y guardo los resultados en un archivo
 
-        int dumpAfterSteps = 800;
+        int dumpAfterSteps = 40;
         long timestamp = System.currentTimeMillis();
 
         Body[] bodies = Util.generateCelestialBodies();
