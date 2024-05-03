@@ -15,7 +15,7 @@ public class Util {
                 0,
                 0,
                 695700,
-                1988500 * Math.pow(10, 24),
+                1988500E24,
                 Body.BodyType.SUN
         );
         Body earth = new Body(
@@ -24,7 +24,7 @@ public class Util {
                 1.698154915953803E+01,
                 -2.422995800936565E+01,
                 6371.01,
-                5.97219 * Math.pow(10, 24),
+                5.97219E24,
                 Body.BodyType.EARTH
         );
         Body mars = new Body(
@@ -33,7 +33,7 @@ public class Util {
                 1.365943796448699E+01,
                 2.268050972064907E+01,
                 3389.92,
-                6.4171 * Math.pow(10, 23),
+                6.4171E23,
                 Body.BodyType.MARS
         );
 

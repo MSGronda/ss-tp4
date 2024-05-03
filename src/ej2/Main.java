@@ -11,7 +11,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        double deltaT = 100;                    // En segundos
+        double deltaT = 745000.0;                    // En segundos
         double spaceshipOrbitDistance = 1500;
         double spaceshipOrbitSpeed = 7.12 + 8;  // TODO: check si es sumar
 
@@ -19,6 +19,58 @@ public class Main {
         double cutoffTime = 20000 * SECONDS_IN_DAY;
 
         testStartingDays(deltaT, spaceshipOrbitDistance, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
+    }
+    private static void testDelta(){
+        double cutoffTime = 31579200;
+
+        List<Double> deltaTs = List.of(7.40e5, 7.425e5, 7.45e5, 7.47e5, 7.5e5);
+
+        for(Double deltaT : deltaTs){
+            Body[] bodies = Util.generateCelestialBodies();
+            Body[] onlyCelestiaBodies = new Body[]{bodies[Body.BodyType.SUN.ordinal()],bodies[Body.BodyType.MARS.ordinal()], bodies[Body.BodyType.EARTH.ordinal()]};
+
+            double energyBefore = calculateTotalEnergy(onlyCelestiaBodies);
+
+            Simulation simulation = new Simulation(
+                    bodies[Body.BodyType.SUN.ordinal()],
+                    bodies[Body.BodyType.MARS.ordinal()],
+                    bodies[Body.BodyType.EARTH.ordinal()],
+                    0,
+                    0,
+                    deltaT,
+                    cutoffTime
+            );
+            double energyAfter = calculateTotalEnergy(onlyCelestiaBodies);
+
+//            Body earth = simulation.getBodies()[Body.BodyType.EARTH.ordinal()];
+//            Body realEarth = new Body(-1.222909445704976E+08, -8.776988375652307E+07, 1.688906686002370E+01, -2.432486393096968E+01, 0, 0, Body.BodyType.EARTH);
+//
+//            Body mars = simulation.getBodies()[Body.BodyType.MARS.ordinal()];
+//            Body realMars = new Body(-2.342323002211556E+08, 8.466649149852000E+07, -7.329716775397554E+00, -2.071609768210218E+01, 0, 0, Body.BodyType.MARS);
+
+            System.out.println("For deltaT: " + deltaT + " error was: " + (Math.abs(energyAfter - energyBefore)));
+        }
+
+    }
+    private static double calculateTotalEnergy(Body[] bodies){
+        double UGC = 6.693 * Math.pow(10, -20);
+
+        double totalEnergy = 0;
+        // Energia cinetica
+        for(Body body : bodies){
+            totalEnergy += 0.5 * body.getM() * (body.getVx()* body.getVx() + body.getVx() + body.getVy());
+        }
+        // Energia potencial gravitatoria
+        for(int i=0; i<bodies.length; i++) {
+            for(int j=0; j< bodies.length; j++){
+                if(i == j){
+                    continue;
+                }
+                // TODO: check el -
+                totalEnergy += - (UGC * bodies[i].getM() + bodies[j].getM()) / bodies[i].distanceFrom(bodies[j]);
+            }
+        }
+        return totalEnergy;
     }
 
     private static void testStartingDays(double deltaT, double spaceshipOrbitDistance, double spaceshipOrbitSpeed, double cutoffDistance, double cutoffTime){
