@@ -11,14 +11,14 @@ public class Main {
 
     public static void main(String[] args) {
 
-        double deltaT = 745000.0;                    // En segundos
+        double deltaT = 100.0;                    // En segundos
         double spaceshipOrbitDistance = 1500;
-        double spaceshipOrbitSpeed = 7.12 + 8;  // TODO: check si es sumar
+        double spaceshipOrbitSpeed = 7.12 + 8;
 
         double cutoffDistance = 6000;
-        double cutoffTime = 20000 * SECONDS_IN_DAY;
+        double cutoffTime = 4 * 365 * SECONDS_IN_DAY;
 
-        testStartingDays(deltaT, spaceshipOrbitDistance, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
+        testStartingDays(deltaT,  spaceshipOrbitDistance, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
     }
     private static void testDelta(){
         double cutoffTime = 31579200;
@@ -107,7 +107,7 @@ public class Main {
     }
 
 
-    private static void simulateAndSave(double deltaT, double startingFrom, double spaceshipOrbitDistance, double spaceshipOrbitSpeed, double cutoffDistance){
+    private static void simulateAndSave(double deltaT, double startingFrom, double spaceshipOrbitDistance, double spaceshipOrbitSpeed, double cutoffDistance, double cutoffTime){
         // Hago una simulacion normal y guardo los resultados en un archivo
 
         int dumpAfterSteps = 800;
@@ -133,7 +133,7 @@ public class Main {
             // Posiciones iniciales
             dumpPositions(cumulativeTime, simulation.getBodies(), writer);
 
-            while(!simulation.cutoffCondition(cutoffDistance)) {
+            while(!simulation.cutoffCondition(cutoffDistance) && cumulativeTime < cutoffTime) {
                 simulation.simulate();
 
                 cumulativeTime += deltaT;

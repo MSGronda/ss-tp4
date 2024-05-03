@@ -14,6 +14,7 @@ public class Simulation {
     private Body[] bodies;
     private final double deltaT;
 
+    private double[][] prevForces;
     private double[][] forces;
 
     public Simulation(Body sun, Body mars, Body earth, double spaceshipOrbitDistance, double spaceshipOrbitSpeed, double deltaT, double startingFrom) {
@@ -25,16 +26,19 @@ public class Simulation {
         // Primero vamos a inicializar el sistema sin la nave y simular hasta cierto dia especifico
         bodies = new Body[BODY_AMOUNT-1];
         forces = new double[BODY_AMOUNT-2][];
+        prevForces = new double[BODY_AMOUNT-2][];
         bodies[0] = mars;
         bodies[1] = earth;
         bodies[2] = sun;
 
         // Si quiero empezar la mision en un dia posterior al cargado inicialmente
+
         advanceSystemUntil(startingFrom);
 
         // Resetemos el posicionamiento en los arreglos
         bodies = new Body[BODY_AMOUNT];
         forces = new double[BODY_AMOUNT-1][];
+        prevForces = new double[BODY_AMOUNT-1][];
 
         bodies[sun.getType().ordinal()] = sun;
         bodies[mars.getType().ordinal()] = mars;
@@ -44,22 +48,47 @@ public class Simulation {
         bodies[Body.BodyType.SPACESHIP.ordinal()] = Util.generateSpaceship(sun, earth, spaceshipOrbitDistance, spaceshipOrbitSpeed);
 
         // Calculo inicial de fuerzas actuales
-        for(int i=0; i<BODY_AMOUNT - 1; i++) {            // No se modifica a la posicion y velocidad del sol => no nos importa la fuerza que se aplica sobre el sol
-            forces[i] = calcTotalForce(i);
-        }
+        setupForces();
     }
 
 
     private void advanceSystemUntil(double startingFrom){
         double cumulativeTime = 0;
 
-        for(int i=0; i<bodies.length - 1; i++) {
-            forces[i] = calcTotalForce(i);
-        }
+        setupForces();
 
         while(cumulativeTime < startingFrom) {
             simulate();
             cumulativeTime += deltaT;
+        }
+    }
+    private void setupForces(){
+        setupCurrentForces();
+        setupPrevForces();
+    }
+
+    private void setupCurrentForces(){
+        for(int i=0; i<bodies.length - 1; i++) {
+            forces[i] = calcTotalForce(i);
+        }
+    }
+    private void setupPrevForces(){
+        double[][] positions = new double[bodies.length-1][];
+        for(int i=0; i<bodies.length -1 ; i++){
+            positions[i] = new double[]{bodies[i].getX(), bodies[i].getY()};
+        }
+
+        for(int i=0; i<bodies.length -1 ; i++){
+            bodies[i].setX(bodies[i].getX() - deltaT * bodies[i].getVx() + (deltaT * deltaT * forces[i][X]) / (2 * bodies[i].getM()));
+            bodies[i].setY(bodies[i].getY() - deltaT * bodies[i].getVy() + (deltaT * deltaT * forces[i][Y]) / (2 * bodies[i].getM()));
+
+        }
+        for(int i=0; i<bodies.length - 1; i++) {
+            prevForces[i] = calcTotalForce(i);
+        }
+        for(int i=0; i<bodies.length -1; i++){
+            bodies[i].setX(positions[i][X]);
+            bodies[i].setY(positions[i][Y]);
         }
     }
 
@@ -75,15 +104,24 @@ public class Simulation {
         }
         // Paso 2: calculamos las nuevas velocidades
         for(int i=0; i<bodies.length - 1; i++) {            // No se modifica a la posicion y velocidad del sol => no nos importa la fuerza que se aplica sobre el sol
-            double m = bodies[i].getM();
 
             // Con la posicion actualizada, calculamos la fuerzas que va a recibir en el futuro.
             double[] futureForces = calcTotalForce(i);
 
             // Actualizamos la velocidad
-            bodies[i].nextVelocity(deltaT, forces[i][X] / m, forces[i][Y] / m, futureForces[X] / m, futureForces[Y] / m);
+            double m = bodies[i].getM();
+            bodies[i].nextVelocity(
+                    deltaT,
+                    prevForces[i][X] / m ,
+                    prevForces[i][Y] / m ,
+                    forces[i][X] / m,
+                    forces[i][Y] / m,
+                    futureForces[X] / m,
+                    futureForces[Y] / m
+            );
 
             // Cacheamos las fuerzas futuras para usar en el paso uno
+            prevForces[i] = forces[i];
             forces[i] = futureForces;
         }
     }

@@ -21,10 +21,6 @@ public class Body {
         this.type = type;
     }
 
-    public void setup() {
-        this.prevAx = 0; //TODO: completar haciendo inversa
-        this.prevAy = 0; //TODO: completar haciendo inversa
-    }
     public void nextPosition(double deltaT, double ax, double ay) {
         double t2 = deltaT * deltaT;
         double newX = x + vx * deltaT + (2 * ax * t2) / 3 - (prevAy * t2) / 6;
@@ -35,15 +31,12 @@ public class Body {
         y = newY;
     }
 
-    public void nextVelocity(double deltaT, double ax, double ay, double futureAx, double futureAy) {
+    public void nextVelocity(double deltaT, double prevAx, double prevAy, double ax, double ay, double futureAx, double futureAy) {
         double newVx = vx + (futureAx * deltaT) / 3 + (5 * ax * deltaT) / 6 - (prevAx * deltaT) / 6;
         double newVy = vy + (futureAy * deltaT) / 3 + (5 * ay * deltaT) / 6 - (prevAy * deltaT) / 6;
 
         vx = newVx;
         vy = newVy;
-
-        prevAx = ax;
-        prevAy = ay;
     }
 
     private static double UGC = 6.693 * Math.pow(10, -20);  // -11 + -9 para conversion a km (en vez de metros)
