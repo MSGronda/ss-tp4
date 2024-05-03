@@ -20,7 +20,7 @@ def graph_positions(data, static_data, start: int = 0, end: int = -1):
 
         plt.scatter(d[TIME][start:end], d[POSITION][start:end], marker='o', s=5, label=static["type"])
 
-    plt.scatter(times, actual_values, marker="_", s=5, label="Solución Analítica")
+    plt.scatter(times[start:end], actual_values[start:end], marker="_", s=5, label="Solución Analítica")
     plt.xlabel(f'Tiempo (s)')
     plt.ylabel(f'Posición (m)')
     plt.grid(True)
