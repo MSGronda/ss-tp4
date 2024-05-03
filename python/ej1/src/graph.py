@@ -6,16 +6,32 @@ from utils import TIME, POSITION
 
 
 def graph_positions(data, static_data, start: int = 0, end: int = -1):
+    actual_values = []
+    times = []
     for d, static in zip(data, static_data):
+        if static["type"] == "BEEMAN":
+            gamma = static["gamma"]
+            mass = static["mass"]
+            k = static["springConstant"]
+            for time in d[TIME]:
+                times.append(time)
+                actual_values.append(math.exp(-(gamma / (2 * mass)) * time) * math.cos(math.sqrt(
+                    (k / mass) - ((gamma * gamma) / (4 * mass * mass))) * time))
+
         plt.scatter(d[TIME][start:end], d[POSITION][start:end], marker='o', s=5, label=static["type"])
+
+    plt.scatter(times, actual_values, marker="_", s=5, label="Solución Analítica")
     plt.xlabel(f'Tiempo (s)')
-    plt.ylabel(f'Posicion (m)')
+    plt.ylabel(f'Posición (m)')
     plt.grid(True)
     plt.legend()
     plt.show()
 
 
 def graph_error(data, static_data):
+    verlet = []
+    beeman = []
+    gear = []
     for d, static in zip(data, static_data):
         error = []
         gamma = static["gamma"]
@@ -30,19 +46,34 @@ def graph_error(data, static_data):
         average = np.mean(error)
 
         if static["type"] == "BEEMAN":
-            color = "green"
+            beeman.append((static["deltaT"], average))
         elif static["type"] == "VERLET":
-            color = "blue"
+            verlet.append((static["deltaT"], average))
         else:
-            color = "red"
+            gear.append((static["deltaT"], average))
 
-        plt.scatter(static["deltaT"], average, marker='o', s=5, color=color)
+    beeman.sort(key=lambda x: x[0], reverse=True)
+    verlet.sort(key=lambda x: x[0], reverse=True)
+    gear.sort(key=lambda x: x[0], reverse=True)
+
+    times = [time for time, _ in beeman]
+    beeman_values = [value for _, value in beeman]
+    verlet_values = [value for _, value in verlet]
+    gear_values = [value for _, value in gear]
+
+    plt.scatter(times, beeman_values, marker='o', s=10, color="green", label="BEEMAN")
+    plt.scatter(times, verlet_values, marker='o', s=10, color="blue", label="VERLET")
+    plt.scatter(times, gear_values, marker='o', s=10, color="red", label="GEAR PREDICTOR CORRECTOR")
+
+    plt.plot(times, beeman_values, color="green")
+    plt.plot(times, verlet_values, color="blue")
+    plt.plot(times, gear_values, color="red")
 
     plt.yscale("log")
     plt.xscale("log")
 
-    plt.xlabel(f'Delta T (s)')
-    plt.ylabel(f'Error cuadratico medio')
+    plt.xlabel(f'Δt (s)')
+    plt.ylabel(f'MSE (m²)')
     plt.grid(True)
-    # plt.legend()
+    plt.legend()
     plt.show()
