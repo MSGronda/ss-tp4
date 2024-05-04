@@ -2,10 +2,7 @@ package ej2;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -23,25 +20,35 @@ public class Main {
         double cutoffDistance = 14000;
         double cutoffTime = 2 * 365 * SECONDS_IN_DAY;
 
-//        testDelta();
-        testStartingDays(deltaT, spaceshipOrbitDistance, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
+        systemEnergyVsDeltaT( 2 * 365 * SECONDS_IN_DAY, 1000000);
+//        simulateAndSave(deltaT, 0, spaceshipOrbitDistance, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
+//        testStartingDays(deltaT, spaceshipOrbitDistance, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
     }
-    private static void testDelta(){
-        double cutoffTime = 31579200;
+    private static void systemEnergyVsDeltaT(double cutoffTime, int dumpToFileLimit){
 
         List<Double> deltaTs = List.of(1.0, 10.0, 100.0, 1000.0, 10000.0, 100000.0);
 
         for(Double deltaT : deltaTs){
-            Body[] bodies = Util.generateCelestialBodies();
-            Simulation simulation = new Simulation(
-                    bodies[Body.BodyType.SUN.ordinal()],
-                    bodies[Body.BodyType.MARS.ordinal()],
-                    bodies[Body.BodyType.EARTH.ordinal()],
-                    0,
-                    0,
-                    deltaT,
-                    cutoffTime
-            );
+            try(FileWriter writer = new FileWriter("./python/ej2/output-files/energy-deltat-" + deltaT + ".csv")) {
+                Simulation simulation = new Simulation(Util.generateSun(), Util.generateCelestialBodies(), deltaT);
+
+                double initialEnergy = simulation.calculateTotalEnergy();
+
+                double accumulatedTime = 0;
+                int timesDumped = 1;
+                while (accumulatedTime < cutoffTime) {
+                    simulation.simulate();
+
+                    accumulatedTime += deltaT;
+
+                    if(accumulatedTime >= dumpToFileLimit * timesDumped) {
+                        writer.write(accumulatedTime + ", " + ((simulation.calculateTotalEnergy() - initialEnergy) / initialEnergy) * 100 + "\n");
+                        timesDumped++;
+                    }
+                }
+            } catch (IOException e){
+                System.out.println(e);
+            }
         }
 
     }
@@ -58,18 +65,23 @@ public class Main {
         startingTimes.parallelStream().forEach(startingTime -> {
             double currentMinDistance = Double.POSITIVE_INFINITY;
 
-            Body[] bodies = Util.generateCelestialBodies();
             Simulation simulation = new Simulation(
-                    bodies[Body.BodyType.SUN.ordinal()],
-                    bodies[Body.BodyType.MARS.ordinal()],
-                    bodies[Body.BodyType.EARTH.ordinal()],
-                    spaceshipOrbitDistance,
-                    spaceshipOrbitSpeed,
-                    deltaT,
-                    startingTime
+                    Util.generateSun(),
+                    Util.generateCelestialBodies(),
+                    deltaT
             );
+
+            // Avanzamos hasta el comienzo de la mision
+            simulation.simulateUntil(startingTime);
+
+            // Generamos el spaceship
+            Body sun = simulation.getBody(Body.BodyType.SUN);
+            Body earth = simulation.getBody(Body.BodyType.EARTH);
+            simulation.addBody(Util.generateSpaceship(sun,earth, spaceshipOrbitDistance, spaceshipOrbitSpeed));
+
+            // Iteramos por el resto de la mision y vamos guardando la distancia minima
             double timeTake = 0;
-            while (!simulation.cutoffCondition(cutoffDistance) && timeTake < cutoffTime) {
+            while (!simulation.spaceShipCloseToMars(cutoffDistance) && timeTake < cutoffTime) {
                 simulation.simulate();
                 timeTake += deltaT;
                 Body[] simBodies = simulation.getBodies();
@@ -101,25 +113,18 @@ public class Main {
     }
 
 
-    private static void simulateAndSave(double deltaT, double startingFrom, double spaceshipOrbitDistance, double spaceshipOrbitSpeed, double cutoffDistance, double cutoffTime){
-        // Hago una simulacion normal y guardo los resultados en un archivo
+    private static void simulateAndSave(double deltaT, double startTime, double spaceshipOrbitDistance, double spaceshipOrbitSpeed, double cutoffDistance, double cutoffTime){
 
-        int dumpAfterSteps = 40;
+        int dumpAfterSteps = 80;
+
         long timestamp = System.currentTimeMillis();
 
-        Body[] bodies = Util.generateCelestialBodies();
-        Simulation simulation = new Simulation(
-                bodies[Body.BodyType.SUN.ordinal()],
-                bodies[Body.BodyType.MARS.ordinal()],
-                bodies[Body.BodyType.EARTH.ordinal()],
-                spaceshipOrbitDistance,
-                spaceshipOrbitSpeed,
-                deltaT,
-                startingFrom
-        );
+        Simulation simulation = new Simulation(Util.generateSun(), Util.generateAllBodies(spaceshipOrbitDistance, spaceshipOrbitSpeed), deltaT);
 
-        writeStaticData(simulation.getBodies(), deltaT, spaceshipOrbitDistance, spaceshipOrbitSpeed, timestamp);
+        // Avanzamos hasta el comienzo de la simulacion
+        simulation.simulateUntil(startTime);
 
+        // Hago una simulacion normal y guardo los resultados en un archivo
         try(FileWriter writer = new FileWriter("./python/ej2/output-files/bodies-" + timestamp + ".csv")){
             double cumulativeTime = 0;
             int cumulativeSteps = 0;
@@ -127,7 +132,7 @@ public class Main {
             // Posiciones iniciales
             dumpPositions(cumulativeTime, simulation.getBodies(), writer);
 
-            while(!simulation.cutoffCondition(cutoffDistance) && cumulativeTime < cutoffTime) {
+            while(!simulation.spaceShipCloseToMars(cutoffDistance) && cumulativeTime < cutoffTime) {
                 simulation.simulate();
 
                 cumulativeTime += deltaT;
@@ -146,6 +151,8 @@ public class Main {
         } catch (IOException e) {
             System.out.println(e);;
         }
+
+        writeStaticData(simulation.getBodies(), deltaT, spaceshipOrbitDistance, spaceshipOrbitSpeed, timestamp);
     }
 
     public static void dumpPositions(double time, Body[] bodies, FileWriter fileWriter) throws IOException {

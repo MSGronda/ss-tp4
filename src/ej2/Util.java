@@ -1,15 +1,10 @@
 package ej2;
 
-import javax.security.auth.Subject;
+import java.util.Arrays;
 
 public class Util {
-
-    public static Body[] generateCelestialBodies() {
-        Body[] resp = new Body[4];
-
-        // TODO: no tener todo hardcodeado.
-
-        Body sun = new Body(
+    public static Body generateSun(){
+        return new Body(
                 0,
                 0,
                 0,
@@ -18,7 +13,12 @@ public class Util {
                 1988500E24,
                 Body.BodyType.SUN
         );
-        Body earth = new Body(
+    }
+
+    public static Body[] generateCelestialBodies() {
+        Body[] resp = new Body[2];
+
+        resp[0] = new Body(
                 -1.219024854566760E+08,
                 -8.830999621339682E+07,
                 1.698154915953803E+01,
@@ -27,7 +27,7 @@ public class Util {
                 5.97219E24,
                 Body.BodyType.EARTH
         );
-        Body mars = new Body(
+        resp[1]  = new Body(
                 1.758500774292310E+08,
                 -1.086968363813986E+08,
                 1.365943796448699E+01,
@@ -36,10 +36,6 @@ public class Util {
                 6.4171E23,
                 Body.BodyType.MARS
         );
-
-        resp[Body.BodyType.SUN.ordinal()] = sun;
-        resp[Body.BodyType.EARTH.ordinal()] = earth;
-        resp[Body.BodyType.MARS.ordinal()] = mars;
 
         return resp;
     }
@@ -66,8 +62,22 @@ public class Util {
                 vx,
                 vy,
                 0,
-                2 * Math.pow(10, 5),
+                2.0E5,
                 Body.BodyType.SPACESHIP
         );
+    }
+
+    public static Body[] generateAllBodies(double spaceshipOrbitDistance, double spaceshipOrbitalSpeed){
+        Body[] bodies = Util.generateCelestialBodies();
+
+        Body[] resp = new Body[bodies.length + 1];
+        System.arraycopy(bodies, 0, resp, 0, bodies.length);
+
+        Body sun = generateSun();
+        Body earth = Arrays.stream(bodies).filter(b -> b.getType() == Body.BodyType.EARTH).toList().stream().findFirst().get(); // Medio un crimen esto
+
+        resp[resp.length - 1] = generateSpaceship(sun, earth, spaceshipOrbitDistance, spaceshipOrbitalSpeed);
+
+        return resp;
     }
 }

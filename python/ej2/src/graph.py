@@ -10,6 +10,7 @@ def graph_energy_time(times, energies, labels):
 
     plt.xlabel("Tiempo (s)")
     plt.ylabel("Error porcentual")
+
     plt.yscale("log")
 
     plt.legend()
