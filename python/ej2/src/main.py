@@ -31,7 +31,7 @@ def generate_min_distances():
 
 
 if __name__ == "__main__":
-    system_energy_vs_delta_t()
-    # generate_min_distances()
+    # system_energy_vs_delta_t()
+    generate_min_distances()
     # generate_animation()
 

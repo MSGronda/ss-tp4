@@ -10,19 +10,24 @@ import java.util.concurrent.atomic.AtomicReference;
 public class Main {
 
     private static final int SECONDS_IN_DAY = 60 * 60 * 24;
+    private static final int SECONDS_IN_HOUR = 60 * 60;
+    private static final int SECONDS_IN_MINUTE = 60;
 
     public static void main(String[] args) {
 
-        double deltaT = 500.0;                    // En segundos
+        double deltaT = 100.0;                    // En segundos
         double spaceshipOrbitDistance = 1500;
         double spaceshipOrbitSpeed = 7.12 + 8;
 
         double cutoffDistance = 14000;
         double cutoffTime = 2 * 365 * SECONDS_IN_DAY;
 
-        systemEnergyVsDeltaT( 2 * 365 * SECONDS_IN_DAY, 1000000);
+//        systemEnergyVsDeltaT( 2 * 365 * SECONDS_IN_DAY, 1000000);
 //        simulateAndSave(deltaT, 0, spaceshipOrbitDistance, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
 //        testStartingDays(deltaT, spaceshipOrbitDistance, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
+
+        double[] optimalStartTime = findOptimalMissionStartTime(68342400, deltaT, spaceshipOrbitDistance, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
+        System.out.println("Best starting time: " + optimalStartTime[0] + " with a min distance of: " + optimalStartTime[1]);
     }
     private static void systemEnergyVsDeltaT(double cutoffTime, int dumpToFileLimit){
 
@@ -42,7 +47,7 @@ public class Main {
                     accumulatedTime += deltaT;
 
                     if(accumulatedTime >= dumpToFileLimit * timesDumped) {
-                        writer.write(accumulatedTime + ", " + ((simulation.calculateTotalEnergy() - initialEnergy) / initialEnergy) * 100 + "\n");
+                        writer.write(accumulatedTime + ", " + Math.abs((simulation.calculateTotalEnergy() - initialEnergy) / initialEnergy) * 100 + "\n");
                         timesDumped++;
                     }
                 }
@@ -54,7 +59,7 @@ public class Main {
     }
 
     private static void testStartingDays(double deltaT, double spaceshipOrbitDistance, double spaceshipOrbitSpeed, double cutoffDistance, double cutoffTime) {
-        int totalStartingMoments = 6 * 365 * 2;
+        int totalStartingMoments = 3 * 365 * 2;
 
         List<Integer> startingTimes = new ArrayList<>();
         for (int i = 0; i < totalStartingMoments; i++) {
@@ -63,34 +68,7 @@ public class Main {
         ConcurrentHashMap<Integer, Double> map = new ConcurrentHashMap<>();
 
         startingTimes.parallelStream().forEach(startingTime -> {
-            double currentMinDistance = Double.POSITIVE_INFINITY;
-
-            Simulation simulation = new Simulation(
-                    Util.generateSun(),
-                    Util.generateCelestialBodies(),
-                    deltaT
-            );
-
-            // Avanzamos hasta el comienzo de la mision
-            simulation.simulateUntil(startingTime);
-
-            // Generamos el spaceship
-            Body sun = simulation.getBody(Body.BodyType.SUN);
-            Body earth = simulation.getBody(Body.BodyType.EARTH);
-            simulation.addBody(Util.generateSpaceship(sun,earth, spaceshipOrbitDistance, spaceshipOrbitSpeed));
-
-            // Iteramos por el resto de la mision y vamos guardando la distancia minima
-            double timeTake = 0;
-            while (!simulation.spaceShipCloseToMars(cutoffDistance) && timeTake < cutoffTime) {
-                simulation.simulate();
-                timeTake += deltaT;
-                Body[] simBodies = simulation.getBodies();
-
-                double distanceFromMars = simBodies[Body.BodyType.MARS.ordinal()].distanceFrom(simBodies[Body.BodyType.SPACESHIP.ordinal()]);
-                if (distanceFromMars < currentMinDistance) {
-                    currentMinDistance = distanceFromMars;
-                }
-            }
+            double currentMinDistance = simulateMinDistance(startingTime, cutoffDistance, cutoffTime, deltaT, spaceshipOrbitDistance, spaceshipOrbitSpeed);
             map.put(startingTime/(SECONDS_IN_DAY / 2), currentMinDistance);
         });
 
@@ -109,7 +87,86 @@ public class Main {
         catch (IOException e){
             System.out.println(e);
         }
+    }
 
+    private static double simulateMinDistance(double startingTime, double cutoffDistance, double cutoffTime, double deltaT, double spaceshipOrbitDistance, double spaceshipOrbitSpeed){
+        double currentMinDistance = Double.POSITIVE_INFINITY;
+
+        Simulation simulation = new Simulation(
+                Util.generateSun(),
+                Util.generateCelestialBodies(),
+                deltaT
+        );
+
+        // Avanzamos hasta el comienzo de la mision
+        simulation.simulateUntil(startingTime);
+
+        // Generamos el spaceship
+        Body sun = simulation.getBody(Body.BodyType.SUN);
+        Body earth = simulation.getBody(Body.BodyType.EARTH);
+        simulation.addBody(Util.generateSpaceship(sun,earth, spaceshipOrbitDistance, spaceshipOrbitSpeed));
+
+        // Iteramos por el resto de la mision y vamos guardando la distancia minima
+        double timeTake = 0;
+        while (!simulation.spaceShipCloseToMars(cutoffDistance) && timeTake < cutoffTime) {
+            simulation.simulate();
+            timeTake += deltaT;
+
+            double distanceFromMars = simulation.getBody(Body.BodyType.MARS).distanceFrom(simulation.getBody(Body.BodyType.SPACESHIP));
+            if (distanceFromMars < currentMinDistance) {
+                currentMinDistance = distanceFromMars;
+            }
+        }
+        return currentMinDistance;
+    }
+
+    private static double[] findOptimalMissionStartTime(double candidateStartTime, double deltaT, double spaceshipOrbitDistance, double spaceshipOrbitSpeed, double cutoffDistance, double cutoffTime){
+        double bestStartTime = candidateStartTime;
+        double minDistance = Double.POSITIVE_INFINITY;
+
+        // Primero probamos +- 1 dia, en incrementos de una hora
+        double currentCandidate = candidateStartTime - SECONDS_IN_DAY;
+        while(currentCandidate < candidateStartTime + SECONDS_IN_DAY){
+
+            double currentMinDistance = simulateMinDistance(currentCandidate, cutoffDistance, cutoffTime, deltaT, spaceshipOrbitDistance, spaceshipOrbitSpeed);
+
+            if(currentMinDistance < minDistance) {
+                minDistance = currentMinDistance;
+                bestStartTime = currentCandidate;
+            }
+
+            currentCandidate += SECONDS_IN_HOUR;
+        }
+
+        // Para el mejor candidate que tenemos probamos +- 1 hora, en incrementos de 1 minuto
+        currentCandidate = bestStartTime - SECONDS_IN_HOUR;
+        while(currentCandidate < candidateStartTime + SECONDS_IN_HOUR){
+
+            double currentMinDistance = simulateMinDistance(currentCandidate, cutoffDistance, cutoffTime, deltaT, spaceshipOrbitDistance, spaceshipOrbitSpeed);
+
+            if(currentMinDistance < minDistance) {
+                minDistance = currentMinDistance;
+                bestStartTime = currentCandidate;
+            }
+
+            currentCandidate += SECONDS_IN_MINUTE;
+        }
+
+        // Hacemos lo mismo pero +- 1 minuto, en incrementos de 1 segundo
+        currentCandidate = bestStartTime - SECONDS_IN_MINUTE;
+        while(currentCandidate < candidateStartTime + SECONDS_IN_MINUTE){
+
+            double currentMinDistance = simulateMinDistance(currentCandidate, cutoffDistance, cutoffTime, deltaT, spaceshipOrbitDistance, spaceshipOrbitSpeed);
+
+            if(currentMinDistance < minDistance) {
+                minDistance = currentMinDistance;
+                bestStartTime = currentCandidate;
+            }
+
+            currentCandidate += 1;
+        }
+
+        return new double[]{bestStartTime, minDistance};
     }
 
 
