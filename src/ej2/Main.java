@@ -3,7 +3,10 @@ package ej2;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -18,10 +21,10 @@ public class Main {
         double spaceshipOrbitSpeed = 7.12 + 8;
 
         double cutoffDistance = 14000;
-        double cutoffTime = 60 * SECONDS_IN_DAY;
+        double cutoffTime = 2 * 365 * SECONDS_IN_DAY;
 
 //        testDelta();
-        simulateAndSave(deltaT,68304001, spaceshipOrbitDistance, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
+        testStartingDays(deltaT, spaceshipOrbitDistance, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
     }
     private static void testDelta(){
         double cutoffTime = 31579200;
@@ -44,18 +47,13 @@ public class Main {
     }
 
     private static void testStartingDays(double deltaT, double spaceshipOrbitDistance, double spaceshipOrbitSpeed, double cutoffDistance, double cutoffTime) {
-        int totalStartingMoments = 60 * 24 * 60;
+        int totalStartingMoments = 6 * 365 * 2;
 
         List<Integer> startingTimes = new ArrayList<>();
         for (int i = 0; i < totalStartingMoments; i++) {
-            startingTimes.add(i + 790  * SECONDS_IN_DAY);
+            startingTimes.add(i * SECONDS_IN_DAY / 2);
         }
-
-        Object minDistanceLock  = new Object();
-
-        AtomicReference<Double> minDistance = new AtomicReference<>(Double.POSITIVE_INFINITY);
-        AtomicInteger minDistanceDay = new AtomicInteger(-1);
-
+        ConcurrentHashMap<Integer, Double> map = new ConcurrentHashMap<>();
 
         startingTimes.parallelStream().forEach(startingTime -> {
             double currentMinDistance = Double.POSITIVE_INFINITY;
@@ -81,15 +79,24 @@ public class Main {
                     currentMinDistance = distanceFromMars;
                 }
             }
-            synchronized (minDistanceLock){
-                if(minDistance.get() > currentMinDistance){
-                    minDistance.set(currentMinDistance);
-                    minDistanceDay.set(startingTime);
-                }
-            }
+            map.put(startingTime/(SECONDS_IN_DAY / 2), currentMinDistance);
         });
 
-        System.out.println("Best moment: " + minDistanceDay.get() + " with a min distance of : " + minDistance.get() + "\n");
+        try(FileWriter writer = new FileWriter("./python/ej2/output-files/min-distances.csv")){
+            map.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(e ->
+                    {
+                        try {
+                            double day = Math.floor((double) e.getKey() / 2) + (e.getKey() % 2) * 0.5;
+                            writer.write(day + "," + e.getValue() + "\n" );
+                        } catch (IOException ex) {
+                            System.out.println(ex);;
+                        }
+                    }
+            );
+        }
+        catch (IOException e){
+            System.out.println(e);
+        }
 
     }
 

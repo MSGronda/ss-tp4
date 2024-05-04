@@ -1,5 +1,6 @@
 package ej2;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -56,10 +57,24 @@ public class Simulation {
         double cumulativeTime = 0;
 
         setupForces();
+        double initialEnergy = calculateTotalEnergy();
 
-        while(cumulativeTime < startingFrom) {
-            simulate();
-            cumulativeTime += deltaT;
+        try(FileWriter writer = new FileWriter("./python/ej2/output-files/energy-deltat-" + deltaT + ".csv")){
+            int cumulativeSteps = 0;
+            while(cumulativeTime < startingFrom) {
+                simulate();
+                cumulativeTime += deltaT;
+
+                cumulativeSteps++;
+
+                if(cumulativeSteps > 1000000 / deltaT) {
+                    writer.write(cumulativeTime + ", " + ((calculateTotalEnergy() - initialEnergy) / initialEnergy) * 100 + "\n");
+                    cumulativeSteps = 0;
+                }
+            }
+        }
+        catch (IOException e){
+            System.out.println(e);
         }
     }
     private void setupForces(){
@@ -91,6 +106,26 @@ public class Simulation {
             bodies[i].setY(positions[i][Y]);
         }
     }
+
+    public double calculateTotalEnergy(){
+        double UGC = 6.693 * Math.pow(10, -20);
+
+        double totalEnergy = 0;
+        // Energia cinetica
+        for(Body body : bodies){
+            totalEnergy += 0.5 * body.getM() * (body.getVx() * body.getVx() + body.getVy() * body.getVy());
+        }
+        Body sun = bodies[2];
+        Body earth = bodies[1];
+        Body mars = bodies[0];
+
+        totalEnergy += - (UGC * sun.getM() * mars.getM()) / sun.distanceFrom(mars);
+        totalEnergy += - (UGC * sun.getM() * earth.getM()) / sun.distanceFrom(earth);
+        totalEnergy += - (UGC * earth.getM() * mars.getM()) / earth.distanceFrom(mars);
+
+        return totalEnergy;
+    }
+
 
     public void simulate() {
         // Paso 0: las fuerzas las tenemos del futureForces del paso anterior

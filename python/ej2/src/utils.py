@@ -13,6 +13,34 @@ def get_all_files() -> [str]:
 def get_all_static_files() -> [str]:
     return glob.glob("../output-files/properties-*.csv")
 
+def get_energy_files() -> [str]:
+    return glob.glob("../output-files/energy-deltat-*.csv")
+
+def get_energy_data(filename:str):
+    time = []
+    energy = []
+
+    with open(filename, 'r') as file:
+        reader = csv.reader(file)
+
+        for row in reader:
+            time.append(float(row[0]))
+            energy.append(float(row[1]))
+
+    return time, energy
+
+def get_min_distances(filename:str):
+    time = []
+    distances = []
+
+    with open(filename, 'r') as file:
+        reader = csv.reader(file)
+
+        for row in reader:
+            time.append(float(row[0]))
+            distances.append(float(row[1]))
+
+    return time, distances
 
 def get_body_data(filename: str):
     time = []
