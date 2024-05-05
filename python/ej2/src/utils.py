@@ -4,6 +4,8 @@ import glob
 
 X = 0
 Y = 1
+VX = 2
+VY = 3
 
 
 def get_all_files() -> [str]:
@@ -13,8 +15,10 @@ def get_all_files() -> [str]:
 def get_all_static_files() -> [str]:
     return glob.glob("../output-files/properties-*.csv")
 
+
 def get_energy_files() -> [str]:
     return glob.glob("../output-files/energy-deltat-*.csv")
+
 
 def get_energy_data(filename:str):
     time = []
@@ -29,6 +33,7 @@ def get_energy_data(filename:str):
 
     return time, energy
 
+
 def get_min_distances(filename:str):
     time = []
     distances = []
@@ -41,6 +46,7 @@ def get_min_distances(filename:str):
             distances.append(float(row[1]))
 
     return time, distances
+
 
 def get_body_data(filename: str):
     time = []
@@ -60,8 +66,12 @@ def get_body_data(filename: str):
 
                 positions_for_timeframe = []
 
-            elif len(row) == 2:
-                positions_for_timeframe.append((float(row[0]), float(row[1])))
+            elif len(row) == 4:
+                positions_for_timeframe.append((float(row[X]), float(row[Y]), float(row[VX]), float(row[VY])))
+
+    # El ultimo valor
+    if positions_for_timeframe is not None:
+        positions.append(positions_for_timeframe)
 
     return time, positions
 

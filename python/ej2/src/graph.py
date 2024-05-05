@@ -16,10 +16,12 @@ def graph_energy_time(times, energies, labels):
     plt.show()
 
 
-def graph_min_distance(times, distances):
-    plt.scatter(times, distances, marker='o', s=5)
+def graph_variable_vs_time(times, variable, x_label, y_label):
+    plt.scatter(times, variable, marker='o', s=5)
 
-    plt.xlabel("Dias (s)")
-    plt.ylabel("Distancia minima (m)")
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
 
     plt.show()
+
+

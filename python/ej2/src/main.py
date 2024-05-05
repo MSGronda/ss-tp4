@@ -1,5 +1,6 @@
 from ej2.src.animation import animate, animate_parallel
 from ej2.src.graph import *
+from ej2.src.mission_data import get_distances_to_objective, get_speeds
 from utils import *
 
 
@@ -22,16 +23,33 @@ def generate_animation():
     time, body_data = get_body_data(get_all_files()[-1])
     properties = get_static_data(get_all_static_files()[-1])
 
-    animate("../animations/simulation-video-start.mp4", body_data[0:1000], properties, 1080)
+    animate("../animations/simulation-video-start.mp4", body_data[0:250], properties, 1080)
 
 
-def generate_min_distances():
-    times, distances = get_min_distances('../output-files/min-distances.csv')
-    graph_min_distance(times, distances)
+def generate_starting_day_comparison():
+    times, distances = get_min_distances('../output-files/starting-day-comparison.csv')
+    graph_variable_vs_time(times, distances, "Dia de salida", "Distancia minima (m)")
+
+
+def generate_mission_data():
+    time, body_data = get_body_data(get_all_files()[-1])
+    properties = get_static_data(get_all_static_files()[-1])
+
+    distances = get_distances_to_objective(body_data, properties)
+    graph_variable_vs_time(time, distances, "Tiempo (s)", "Distancia entre nave y marte (km)")
+
+    speeds = get_speeds(body_data, properties)
+    graph_variable_vs_time(time, speeds, "Tiempo (s)", "Modulo de velocidad (m/s)")
+
+
+def generate_speed_comparison():
+    times, distances = get_min_distances('../output-files/speed-comparison.csv')
+    graph_variable_vs_time(times, distances, "Velocidad en modulo (m/s)", "Distancia minima (m)")
 
 
 if __name__ == "__main__":
     # system_energy_vs_delta_t()
-    generate_min_distances()
+    # generate_min_distances()
     # generate_animation()
-
+    # generate_mission_data()
+    generate_speed_comparison()
