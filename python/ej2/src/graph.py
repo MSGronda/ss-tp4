@@ -9,7 +9,7 @@ def graph_energy_time(times, energies, labels):
         plt.scatter(time, energy, marker=next(marker), s=5, label=label)
 
     plt.xlabel("Tiempo (s)")
-    plt.ylabel("Error porcentual")
+    plt.ylabel("Error porcentual de energia del sistema")
     plt.yscale("log")
 
     plt.legend()

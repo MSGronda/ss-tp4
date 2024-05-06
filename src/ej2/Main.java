@@ -22,17 +22,17 @@ public class Main {
         double deltaT = 500.0;                    // En segundos
         double spaceshipOrbitSpeed = SPACE_STATION_SPEED + 8;
 
-        double cutoffDistance = 14000;
+        double cutoffDistance = 1500;
         double cutoffTime = 2 * 365 * SECONDS_IN_DAY;
 
-        double startTime = 6.83496E7;
+        double startTime = 8.068104E7;
 
 //        systemEnergyVsDeltaT( 2 * 365 * SECONDS_IN_DAY, 1000000);
-//        testStartingDays(deltaT, spaceshipOrbitDistance, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
-//        double[] optimalStartTime = findOptimalMissionStartTime(68342400, deltaT, spaceshipOrbitDistance, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
-//        System.out.println("Best starting time: " + optimalStartTime[0] + " with a min distance of: " + optimalStartTime[1]);
 
-
+//        testStartingDays(deltaT, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
+        double[] optimalStartTime = findOptimalMissionStartTime(173.0, deltaT, spaceshipOrbitSpeed, 0, cutoffTime);
+        System.out.println("Best starting time: " + optimalStartTime[0] + " with a min distance of: " + optimalStartTime[1]);
+//
 //        simulateAndSave(deltaT, startTime, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
         testStartingSpeed(startTime, deltaT, cutoffDistance, cutoffTime);
     }
@@ -153,7 +153,8 @@ public class Main {
             simulation.simulate();
             timeTake += deltaT;
 
-            double distanceFromMars = simulation.getBody(Body.BodyType.MARS).distanceFrom(simulation.getBody(Body.BodyType.SPACESHIP));
+            Body mars = simulation.getBody(Body.BodyType.MARS);
+            double distanceFromMars = mars.distanceFrom(simulation.getBody(Body.BodyType.SPACESHIP)) - mars.getR();
             if (distanceFromMars < currentMinDistance) {
                 currentMinDistance = distanceFromMars;
             }
@@ -194,18 +195,18 @@ public class Main {
         }
 
         // Hacemos lo mismo pero +- 1 minuto, en incrementos de 1 segundo
-        currentCandidate = bestStartTime - SECONDS_IN_MINUTE;
-        while(currentCandidate < candidateStartTime + SECONDS_IN_MINUTE){
-
-            double currentMinDistance = simulateMinDistance(currentCandidate, cutoffDistance, cutoffTime, deltaT, spaceshipOrbitSpeed);
-
-            if(currentMinDistance < minDistance) {
-                minDistance = currentMinDistance;
-                bestStartTime = currentCandidate;
-            }
-
-            currentCandidate += 1;
-        }
+//        currentCandidate = bestStartTime - SECONDS_IN_MINUTE;
+//        while(currentCandidate < candidateStartTime + SECONDS_IN_MINUTE){
+//
+//            double currentMinDistance = simulateMinDistance(currentCandidate, cutoffDistance, cutoffTime, deltaT, spaceshipOrbitSpeed);
+//
+//            if(currentMinDistance < minDistance) {
+//                minDistance = currentMinDistance;
+//                bestStartTime = currentCandidate;
+//            }
+//
+//            currentCandidate += 1;
+//        }
 
         return new double[]{bestStartTime, minDistance};
     }

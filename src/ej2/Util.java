@@ -47,8 +47,8 @@ public class Util {
         double xTangVersor = sun.tangX(earth);
         double yTangVersor = sun.tangY(earth);
 
-        double x = earth.getX() + xNormalVersor * spaceshipOrbitDistance;
-        double y = earth.getY() + yNormalVersor * spaceshipOrbitDistance;
+        double x = earth.getX() + xNormalVersor * (spaceshipOrbitDistance + earth.getR());
+        double y = earth.getY() + yNormalVersor * (spaceshipOrbitDistance + earth.getR());
 
         double cvx = xTangVersor * spaceshipOrbitalSpeed;
         double vx = earth.getVx() + (cvx * earth.getVx() > 0 ? cvx  : - cvx);

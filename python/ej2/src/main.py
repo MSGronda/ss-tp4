@@ -23,12 +23,12 @@ def generate_animation():
     time, body_data = get_body_data(get_all_files()[-1])
     properties = get_static_data(get_all_static_files()[-1])
 
-    animate("../animations/simulation-video-start.mp4", body_data[0:250], properties, 1080)
+    animate("../animations/simulation-video-start.mp4", body_data[0:500], properties, 1080)
 
 
 def generate_starting_day_comparison():
     times, distances = get_min_distances('../output-files/starting-day-comparison.csv')
-    graph_variable_vs_time(times, distances, "Dia de salida", "Distancia minima (m)")
+    graph_variable_vs_time(times, distances, "Dia de salida", "Distancia minima (km)")
 
 
 def generate_mission_data():
@@ -39,17 +39,17 @@ def generate_mission_data():
     graph_variable_vs_time(time, distances, "Tiempo (s)", "Distancia entre nave y marte (km)")
 
     speeds = get_speeds(body_data, properties)
-    graph_variable_vs_time(time, speeds, "Tiempo (s)", "Modulo de velocidad (m/s)")
+    graph_variable_vs_time(time, speeds, "Tiempo (s)", "Modulo de velocidad (km/s)")
 
 
 def generate_speed_comparison():
     times, distances = get_min_distances('../output-files/speed-comparison.csv')
-    graph_variable_vs_time(times, distances, "Velocidad en modulo (m/s)", "Distancia minima (m)")
+    graph_variable_vs_time(times, distances, "Velocidad en modulo (km/s)", "Distancia minima (km)")
 
 
 if __name__ == "__main__":
     # system_energy_vs_delta_t()
-    # generate_min_distances()
+    # generate_starting_day_comparison()
     # generate_animation()
-    # generate_mission_data()
+    # generate_mission_dat1a()
     generate_speed_comparison()
