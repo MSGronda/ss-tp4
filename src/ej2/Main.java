@@ -15,6 +15,7 @@ public class Main {
     private static final double SPACE_STATION_SPEED = 7.12;
     private static final double SPACE_STATION_ORBIT_ELEVATION = 1500;
 
+    private static final Body[] bodies = Util.generateCelestialBodies();
 
 
     public static void main(String[] args) {
@@ -35,6 +36,7 @@ public class Main {
 //
 //        simulateAndSave(deltaT, startTime, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
         testStartingSpeed(startTime, deltaT, cutoffDistance, cutoffTime);
+
     }
 
 
@@ -76,7 +78,7 @@ public class Main {
 
         for(Double deltaT : deltaTs){
             try(FileWriter writer = new FileWriter("./python/ej2/output-files/energy-deltat-" + deltaT + ".csv")) {
-                Simulation simulation = new Simulation(Util.generateSun(), Util.generateCelestialBodies(), deltaT);
+                Simulation simulation = new Simulation(Util.generateSun(), bodies.clone(), deltaT);
 
                 double initialEnergy = simulation.calculateTotalEnergy();
 
@@ -135,7 +137,7 @@ public class Main {
 
         Simulation simulation = new Simulation(
                 Util.generateSun(),
-                Util.generateCelestialBodies(),
+                bodies.clone(),
                 deltaT
         );
 
@@ -143,18 +145,17 @@ public class Main {
         simulation.simulateUntil(startingTime);
 
         // Generamos el spaceship
-        Body sun = simulation.getBody(Body.BodyType.SUN);
-        Body earth = simulation.getBody(Body.BodyType.EARTH);
+        Body sun = simulation.getBody(Body.BodyType.SUN).get();
+        Body earth = simulation.getBody(Body.BodyType.EARTH).get();
         simulation.addBody(Util.generateSpaceship(sun,earth, SPACE_STATION_ORBIT_ELEVATION, spaceshipOrbitSpeed));
 
         // Iteramos por el resto de la mision y vamos guardando la distancia minima
         double timeTake = 0;
-        while (!simulation.spaceShipCloseToMars(cutoffDistance) && timeTake < cutoffTime) {
+        while (!simulation.spaceShipCloseToObjective(cutoffDistance) && timeTake < cutoffTime) {
             simulation.simulate();
             timeTake += deltaT;
 
-            Body mars = simulation.getBody(Body.BodyType.MARS);
-            double distanceFromMars = mars.distanceFrom(simulation.getBody(Body.BodyType.SPACESHIP)) - mars.getR();
+            double distanceFromMars = simulation.getBody(Body.BodyType.MARS).get().distanceFrom(simulation.getBody(Body.BodyType.SPACESHIP).get());
             if (distanceFromMars < currentMinDistance) {
                 currentMinDistance = distanceFromMars;
             }
@@ -219,13 +220,13 @@ public class Main {
 
         long timestamp = System.currentTimeMillis();
 
-        Simulation simulation = new Simulation(Util.generateSun(), Util.generateCelestialBodies(), deltaT);
+        Simulation simulation = new Simulation(Util.generateSun(), bodies.clone(), deltaT);
 
         // Avanzamos hasta el comienzo de la mision
         simulation.simulateUntil(startTime);
 
         // Agregamos la nave
-        simulation.addBody(Util.generateSpaceship(simulation.getBody(Body.BodyType.SUN), simulation.getBody(Body.BodyType.EARTH), SPACE_STATION_ORBIT_ELEVATION, spaceshipOrbitSpeed));
+        simulation.addBody(Util.generateSpaceship(simulation.getBody(Body.BodyType.SUN).get(), simulation.getBody(Body.BodyType.EARTH).get(), SPACE_STATION_ORBIT_ELEVATION, spaceshipOrbitSpeed));
 
         // Hago una simulacion normal y guardo los resultados en un archivo
         try(FileWriter writer = new FileWriter("./python/ej2/output-files/bodies-" + timestamp + ".csv")){
@@ -235,7 +236,7 @@ public class Main {
             // Posiciones iniciales
             dumpPositions(cumulativeTime, simulation.getBodies(), writer);
 
-            while(!simulation.spaceShipCloseToMars(cutoffDistance) && cumulativeTime < cutoffTime) {
+            while(!simulation.spaceShipCloseToObjective(cutoffDistance) && cumulativeTime < cutoffTime) {
                 simulation.simulate();
 
                 cumulativeTime += deltaT;

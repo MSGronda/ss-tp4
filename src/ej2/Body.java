@@ -110,6 +110,7 @@ public class Body {
     public enum BodyType {
         EARTH,
         MARS,
+        JUPITER,
         SPACESHIP,
         SUN
     }

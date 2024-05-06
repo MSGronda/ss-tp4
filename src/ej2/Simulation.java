@@ -1,5 +1,7 @@
 package ej2;
 
+import java.util.Optional;
+
 import static ej2.Body.UGC;
 
 public class Simulation {
@@ -104,10 +106,16 @@ public class Simulation {
         return totalEnergy;
     }
 
-    public boolean spaceShipCloseToMars(double distanceFromMars) {
-        Body mars = getBody(Body.BodyType.MARS);
-        Body spaceship = getBody(Body.BodyType.SPACESHIP);
-        return mars.distanceFrom(spaceship) <= mars.getR() + distanceFromMars;
+    // Si esta Jupiter calcula con ese, sino con Marte
+    public boolean spaceShipCloseToObjective(double distance){
+        Body spaceship = getBody(Body.BodyType.SPACESHIP).get();
+        Optional<Body> maybeJupiter = getBody(Body.BodyType.JUPITER);
+        if( maybeJupiter.isPresent()){
+            Body jupiter = maybeJupiter.get();
+            return jupiter.distanceFrom(spaceship) <= jupiter.getR() + distance;
+        }
+        Body mars = getBody(Body.BodyType.MARS).get();
+        return mars.distanceFrom(spaceship) <= mars.getR() + distance;
     }
 
 
@@ -180,13 +188,13 @@ public class Simulation {
         return bodies.clone();
     }
 
-    public Body getBody(Body.BodyType type) {
+    public Optional<Body> getBody(Body.BodyType type) {
         for (Body body : bodies) {
             if (body.getType() == type) {
-                return body;
+                return Optional.of(body);
             }
         }
-        throw new RuntimeException("No lo encontramos");
+        return Optional.empty();
     }
 
 }

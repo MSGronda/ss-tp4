@@ -40,6 +40,40 @@ public class Util {
         return resp;
     }
 
+    public static Body[] generateCelestialBodiesWithJupiter() {
+        Body[] resp = new Body[3];
+
+        resp[0] = new Body(
+                -1.219024854566760E+08,
+                -8.830999621339682E+07,
+                1.698154915953803E+01,
+                -2.422995800936565E+01,
+                6371.01,
+                5.97219E24,
+                Body.BodyType.EARTH
+        );
+        resp[1]  = new Body(
+                1.758500774292310E+08,
+                -1.086968363813986E+08,
+                1.365943796448699E+01,
+                2.268050972064907E+01,
+                3389.92,
+                6.4171E23,
+                Body.BodyType.MARS
+        );
+        resp[2] = new Body(
+                4.197239507543979E+08,
+                6.208501496231644E+08,
+                -1.098467423816427E+01,
+                7.940485717710249E+00,
+                69911,
+                189818722,
+                Body.BodyType.JUPITER
+        );
+
+        return resp;
+    }
+
     public static Body generateSpaceship(Body sun, Body earth, double spaceshipOrbitDistance, double spaceshipOrbitalSpeed){
 
         double xNormalVersor = sun.normalX(earth);
