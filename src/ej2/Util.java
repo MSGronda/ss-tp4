@@ -1,6 +1,10 @@
 package ej2;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Util {
     public static Body generateSun(){
@@ -113,5 +117,49 @@ public class Util {
         resp[resp.length - 1] = generateSpaceship(sun, earth, spaceshipOrbitDistance, spaceshipOrbitalSpeed);
 
         return resp;
+    }
+
+    public static void dumpMap(ConcurrentHashMap<Double, Double> map, String filename){
+        try(FileWriter writer = new FileWriter(filename)){
+            map.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(e ->
+                    {
+                        try {
+                            writer.write(e.getKey() + "," + e.getValue() + "\n" );
+                        } catch (IOException ex) {
+                            System.out.println(ex);;
+                        }
+                    }
+            );
+        }
+        catch (IOException e){
+            System.out.println(e);
+        }
+    }
+
+    public static void dumpPositions(double time, Body[] bodies, FileWriter fileWriter) throws IOException {
+        fileWriter.write(time + "\n");
+        for(int i=0; i<bodies.length; i++){
+            // No se modifica a la posicion y velocidad del sol => no nos importa la fuerza que se aplica sobre el sol
+
+            Body body = bodies[i];
+
+            if(body.getType() == Body.BodyType.SUN){ continue; }
+
+            fileWriter.write(body.toString() + "\n");
+        }
+    }
+
+    public static void writeStaticData(Body[] bodies, double deltaT, double spaceshipOrbitSpeed, double spaceshipOrbitElevation, long timestamp) {
+        try(FileWriter writer = new FileWriter("./python/ej2/output-files/properties-" + timestamp + ".csv")){
+            writer.write("deltaT," + deltaT + "\n");
+            writer.write("spaceshipOrbitDistance," + spaceshipOrbitElevation + "\n");
+            writer.write("spaceshipOrbitSpeed," + spaceshipOrbitSpeed + "\n");
+            for(int i=0; i<bodies.length; i++){
+                Body body = bodies[i];
+                writer.write(body.getType().name() + "," + i + "," + body.getM() + "," + body.getR() + "\n");
+            }
+        } catch (IOException e) {
+            System.out.println(e);;
+        }
     }
 }
