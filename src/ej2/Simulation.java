@@ -107,15 +107,10 @@ public class Simulation {
     }
 
     // Si esta Jupiter calcula con ese, sino con Marte
-    public boolean spaceShipCloseToObjective(double distance){
+    public boolean spaceShipCloseToObjective(double distance, Body.BodyType objective){
         Body spaceship = getBody(Body.BodyType.SPACESHIP).get();
-        Optional<Body> maybeJupiter = getBody(Body.BodyType.JUPITER);
-        if( maybeJupiter.isPresent()){
-            Body jupiter = maybeJupiter.get();
-            return jupiter.distanceFrom(spaceship) <= jupiter.getR() + distance;
-        }
-        Body mars = getBody(Body.BodyType.MARS).get();
-        return mars.distanceFrom(spaceship) <= mars.getR() + distance;
+        Body obj = getBody(objective).get();
+        return obj.distanceFrom(spaceship) <= obj.getR() + distance;
     }
 
 

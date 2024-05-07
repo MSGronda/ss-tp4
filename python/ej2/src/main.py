@@ -36,7 +36,7 @@ def generate_animation():
 
 def generate_starting_day_comparison():
     times, distances = get_min_distances('../output-files/starting-day-comparison.csv')
-    graph_variable_vs_time(times, distances, "Dia de salida", "Distancia minima (km)")
+    graph_variable_vs_time(times, distances, "Minuto de salida", "Distancia minima (km)")
 
 
 def generate_mission_data():
@@ -51,13 +51,15 @@ def generate_mission_data():
 
 
 def generate_speed_comparison():
-    times, distances = get_min_distances('../output-files/speed-comparison.csv')
-    graph_variable_vs_time(times, distances, "Velocidad en modulo (km/s)", "Distancia minima (km)")
+    speeds, distances = get_min_distances('../output-files/speed-comparison-distance.csv')
+    _, times = get_min_distances('../output-files/speed-comparison-time.csv')
+    graph_variable_vs_time(speeds, distances, "Velocidad en modulo (km/s)", "Distancia minima (km)")
+    graph_variable_vs_time(speeds, times, "Velocidad en modulo (km/s)", "Tiempo minimo de mision (s)")
 
 
 if __name__ == "__main__":
-    system_energy_vs_delta_t()
+    # system_energy_vs_delta_t()
     # generate_starting_day_comparison()
     # generate_animation()
-    # generate_mission_dat1a()
-    # generate_speed_comparison()
+    # generate_mission_data()
+    generate_speed_comparison()
