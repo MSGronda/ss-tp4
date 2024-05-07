@@ -16,6 +16,18 @@ def graph_energy_time(times, energies, labels):
     plt.show()
 
 
+def graph_mean_error(delta_t, mean_erros, std_errors):
+    plt.errorbar(delta_t, mean_erros, std_errors)
+    plt.xlabel("Delta T (s)")
+    plt.ylabel("Error porcentual medio de energia del sistema")
+
+    plt.yscale("log")
+    plt.xscale("log")
+
+    plt.legend()
+    plt.show()
+
+
 def graph_variable_vs_time(times, variable, x_label, y_label):
     plt.scatter(times, variable, marker='o', s=5)
 

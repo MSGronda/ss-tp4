@@ -15,7 +15,9 @@ public class Main {
     private static final double SPACE_STATION_SPEED = 7.12;
     private static final double SPACE_STATION_ORBIT_ELEVATION = 1500;
 
-    private static final Body[] bodies = Util.generateCelestialBodies();
+    private static Body[] getBodies() {
+        return Util.generateCelestialBodies();
+    }
 
 
     public static void main(String[] args) {
@@ -28,19 +30,21 @@ public class Main {
 
         double startTime = 8.068104E7;
 
-//        systemEnergyVsDeltaT( 2 * 365 * SECONDS_IN_DAY, 1000000);
+        systemEnergyVsDeltaT( 2 * 365 * SECONDS_IN_DAY, 1000000);
 
-//        testStartingDays(deltaT, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
-        double[] optimalStartTime = findOptimalMissionStartTime(173.0, deltaT, spaceshipOrbitSpeed, 0, cutoffTime);
-        System.out.println("Best starting time: " + optimalStartTime[0] + " with a min distance of: " + optimalStartTime[1]);
-//
+//        double bestDay = testStartingDays(deltaT, spaceshipOrbitSpeed, cutoffDistance, cutoffTime, 10 * 365);
+//        System.out.println(bestDay);
+
+//        double[] optimalStartTime = findOptimalMissionStartTime(142.0 * 3600 * 24, deltaT, spaceshipOrbitSpeed, 0, cutoffTime);
+//        System.out.println("Best starting time: " + optimalStartTime[0] + " with a min distance of: " + optimalStartTime[1]);
+
 //        simulateAndSave(deltaT, startTime, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
-        testStartingSpeed(startTime, deltaT, cutoffDistance, cutoffTime);
+//        testStartingSpeed(startTime, deltaT, cutoffDistance, cutoffTime);
 
     }
 
 
-    private static void testStartingSpeed(double startTime, double deltaT, double cutoffDistance, double cutoffTime){
+    private static double testStartingSpeed(double startTime, double deltaT, double cutoffDistance, double cutoffTime){
         double speedRangeLength = 20;
         double speedIncrement = 0.1;
 
@@ -49,36 +53,25 @@ public class Main {
             speeds.add(SPACE_STATION_SPEED + speed);
         }
 
-        ConcurrentHashMap<Double, Double> minDistances = new ConcurrentHashMap<>();
+        ConcurrentHashMap<Double, Double> map = new ConcurrentHashMap<>();
 
         speeds.parallelStream().forEach(speed -> {
             double minDistance = simulateMinDistance(startTime, cutoffDistance, cutoffTime, deltaT, speed);
-            minDistances.put(speed, minDistance);
+            map.put(speed, minDistance);
         });
 
-        try(FileWriter writer = new FileWriter("./python/ej2/output-files/speed-comparison.csv")){
-            minDistances.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(e ->
-                    {
-                        try {
-                            writer.write((e.getKey() - SPACE_STATION_SPEED)+ "," + e.getValue() + "\n" );
-                        } catch (IOException ex) {
-                            System.out.println(ex);;
-                        }
-                    }
-            );
-        } catch (IOException e){
-            System.out.println(e);
-        }
+        dumpMap(map, "./python/ej2/output-files/speed-comparison.csv");
 
+        return getBestFromMap(map);
     }
 
     private static void systemEnergyVsDeltaT(double cutoffTime, int dumpToFileLimit){
 
-        List<Double> deltaTs = List.of(1.0, 10.0, 100.0, 1000.0, 10000.0, 100000.0);
+        List<Double> deltaTs = List.of(1.0, 10.0, 100.0, 500.0, 1000.0, 10000.0);
 
         for(Double deltaT : deltaTs){
             try(FileWriter writer = new FileWriter("./python/ej2/output-files/energy-deltat-" + deltaT + ".csv")) {
-                Simulation simulation = new Simulation(Util.generateSun(), bodies.clone(), deltaT);
+                Simulation simulation = new Simulation(Util.generateSun(), getBodies(), deltaT);
 
                 double initialEnergy = simulation.calculateTotalEnergy();
 
@@ -101,26 +94,29 @@ public class Main {
 
     }
 
-    private static void testStartingDays(double deltaT, double spaceshipOrbitSpeed, double cutoffDistance, double cutoffTime) {
-        int totalStartingMoments = 3 * 365 * 2;
+    private static double testStartingDays(double deltaT, double spaceshipOrbitSpeed, double cutoffDistance, double cutoffTime, int totalStartingMoments) {
 
         List<Integer> startingTimes = new ArrayList<>();
         for (int i = 0; i < totalStartingMoments; i++) {
-            startingTimes.add(i * SECONDS_IN_DAY / 2);
+            startingTimes.add(i * SECONDS_IN_DAY);
         }
-        ConcurrentHashMap<Integer, Double> map = new ConcurrentHashMap<>();
+        ConcurrentHashMap<Double, Double> map = new ConcurrentHashMap<>();
 
         startingTimes.parallelStream().forEach(startingTime -> {
             double currentMinDistance = simulateMinDistance(startingTime, cutoffDistance, cutoffTime, deltaT, spaceshipOrbitSpeed);
-            map.put(startingTime/(SECONDS_IN_DAY / 2), currentMinDistance);
+            map.put((double) startingTime/SECONDS_IN_DAY, currentMinDistance);
         });
 
-        try(FileWriter writer = new FileWriter("./python/ej2/output-files/starting-day-comparison.csv")){
+        dumpMap(map, "./python/ej2/output-files/starting-day-comparison.csv");
+
+        return getBestFromMap(map);
+    }
+    private static void dumpMap(ConcurrentHashMap<Double, Double> map, String filename){
+        try(FileWriter writer = new FileWriter(filename)){
             map.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(e ->
                     {
                         try {
-                            double day = Math.floor((double) e.getKey() / 2) + (e.getKey() % 2) * 0.5;
-                            writer.write(day + "," + e.getValue() + "\n" );
+                            writer.write(e.getKey() + "," + e.getValue() + "\n" );
                         } catch (IOException ex) {
                             System.out.println(ex);;
                         }
@@ -132,12 +128,24 @@ public class Main {
         }
     }
 
+    private static double getBestFromMap(ConcurrentHashMap<Double, Double> map){
+        double min = Double.POSITIVE_INFINITY;
+        double minKey = -1;
+        for(Map.Entry<Double, Double> entry : map.entrySet()){
+            if(min > entry.getValue()){
+                min = entry.getValue();
+                minKey = entry.getKey();
+            }
+        }
+        return minKey;
+    }
+
     private static double simulateMinDistance(double startingTime, double cutoffDistance, double cutoffTime, double deltaT, double spaceshipOrbitSpeed){
         double currentMinDistance = Double.POSITIVE_INFINITY;
 
         Simulation simulation = new Simulation(
                 Util.generateSun(),
-                bodies.clone(),
+                getBodies(),
                 deltaT
         );
 
@@ -155,7 +163,7 @@ public class Main {
             simulation.simulate();
             timeTake += deltaT;
 
-            double distanceFromMars = simulation.getBody(Body.BodyType.MARS).get().distanceFrom(simulation.getBody(Body.BodyType.SPACESHIP).get());
+            double distanceFromMars = simulation.getBody(Body.BodyType.JUPITER).get().distanceFrom(simulation.getBody(Body.BodyType.SPACESHIP).get());
             if (distanceFromMars < currentMinDistance) {
                 currentMinDistance = distanceFromMars;
             }
@@ -220,7 +228,7 @@ public class Main {
 
         long timestamp = System.currentTimeMillis();
 
-        Simulation simulation = new Simulation(Util.generateSun(), bodies.clone(), deltaT);
+        Simulation simulation = new Simulation(Util.generateSun(), getBodies(), deltaT);
 
         // Avanzamos hasta el comienzo de la mision
         simulation.simulateUntil(startTime);

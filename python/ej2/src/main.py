@@ -1,3 +1,5 @@
+import numpy as np
+
 from ej2.src.animation import animate, animate_parallel
 from ej2.src.graph import *
 from ej2.src.mission_data import get_distances_to_objective, get_speeds
@@ -8,6 +10,7 @@ def system_energy_vs_delta_t():
     times = []
     energies = []
     labels = []
+    delta_t = []
     for filename in get_energy_files():
         time, energy = get_energy_data(filename)
 
@@ -15,15 +18,20 @@ def system_energy_vs_delta_t():
         energies.append(energy)
         name = filename.removeprefix("../output-files\\energy-deltat-").removesuffix(".csv")
         labels.append(f"Delta T = {name} (s)")
+        delta_t.append(float(name))
 
     graph_energy_time(times, energies, labels)
+
+    mean_errors = np.mean(energies, axis=1)
+    std_errors = np.std(energies, axis=1)
+    graph_mean_error(delta_t, mean_errors, std_errors)
 
 
 def generate_animation():
     time, body_data = get_body_data(get_all_files()[-1])
     properties = get_static_data(get_all_static_files()[-1])
 
-    animate("../animations/simulation-video-start.mp4", body_data[0:500], properties, 1080)
+    animate("../animations/simulation-video-start.mp4", body_data, properties, 1080)
 
 
 def generate_starting_day_comparison():
@@ -48,8 +56,8 @@ def generate_speed_comparison():
 
 
 if __name__ == "__main__":
-    # system_energy_vs_delta_t()
-    generate_starting_day_comparison()
+    system_energy_vs_delta_t()
+    # generate_starting_day_comparison()
     # generate_animation()
     # generate_mission_dat1a()
     # generate_speed_comparison()
