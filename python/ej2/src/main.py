@@ -17,7 +17,7 @@ def system_energy_vs_delta_t():
         times.append(time)
         energies.append(energy)
         name = filename.removeprefix("../output-files\\energy-deltat-").removesuffix(".csv")
-        labels.append(f"Delta T = {name} (s)")
+        labels.append(f"$\Delta$ T = {name} (s)")
         delta_t.append(float(name))
 
     graph_energy_time(times, energies, labels)
@@ -31,7 +31,7 @@ def generate_animation():
     time, body_data = get_body_data(get_all_files()[-1])
     properties = get_static_data(get_all_static_files()[-1])
 
-    animate("../animations/simulation-video-start.mp4", body_data, properties, 1080)
+    animate("../animations/simulation-video-start.mp4", get_dates(time, 1723174400), body_data, properties, 1080)
 
 
 def generate_starting_day_comparison():
@@ -60,6 +60,6 @@ def generate_speed_comparison():
 if __name__ == "__main__":
     # system_energy_vs_delta_t()
     # generate_starting_day_comparison()
-    # generate_animation()
+    generate_animation()
     # generate_mission_data()
-    generate_speed_comparison()
+    # generate_speed_comparison()

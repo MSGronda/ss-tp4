@@ -1,6 +1,6 @@
 import csv
 import glob
-
+import datetime
 
 X = 0
 Y = 1
@@ -46,6 +46,10 @@ def get_min_distances(filename:str):
             distances.append(float(row[1]))
 
     return time, distances
+
+
+def get_dates(times: [], starting_date: int):
+    return [datetime.datetime.fromtimestamp(t + starting_date) for t in times]
 
 
 def get_body_data(filename: str):
