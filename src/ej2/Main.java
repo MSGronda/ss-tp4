@@ -25,9 +25,8 @@ public class Main {
         double startTime = 173 * SECONDS_IN_DAY + 339 * SECONDS_IN_MINUTE;
 
 //        systemEnergyVsDeltaT( 2 * 365 * SECONDS_IN_DAY, 1000000);
-//        testStartingDays(deltaT, spaceshipOrbitSpeed, cutoffDistance, cutoffTime, 0, 365 * SECONDS_IN_DAY, SECONDS_IN_DAY);
+//        testStartingDays(deltaT, spaceshipOrbitSpeed, cutoffDistance, cutoffTime, 173 * SECONDS_IN_DAY + 5 * SECONDS_IN_HOUR, 173 * SECONDS_IN_DAY + 7 * SECONDS_IN_HOUR, deltaT);
 //        testStartingSpeed(173 * SECONDS_IN_DAY, deltaT, cutoffTime);
-
         simulateAndSave(deltaT, startTime, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
     }
 
@@ -184,7 +183,7 @@ public class Main {
         if (objective  == Body.BodyType.MARS){
             return Util.generateCelestialBodies();
         } else if (objective == Body.BodyType.JUPITER) {
-            return Util.generateCelestialBodies();
+            return Util.generateCelestialBodiesWithJupiter();
         }
         return Util.generateCelestialBodies();
     }
