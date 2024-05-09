@@ -10,12 +10,10 @@ public class Main {
         double gamma = 100;
         double deltaT = 0.000001;
         double totalTime = 5;
-        SimulationType type = SimulationType.BEEMAN;
+        SimulationType type = SimulationType.GEAR_PREDICTOR_CORRECTOR;
 
         double[] deltaTs = {0.000001, 0.00001, 0.0001, 0.001, 0.01};
 
-
-//        for (double i = 0.000001 ; i <= 0.00101 ; i += 0.0001665 ) {
         for (double i : deltaTs ) {
             deltaT = i;
             long timestamp = System.currentTimeMillis();

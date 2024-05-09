@@ -61,9 +61,9 @@ def graph_error(data, static_data):
     verlet_values = [value for _, value in verlet]
     gear_values = [value for _, value in gear]
 
-    plt.scatter(times, beeman_values, marker='o', s=10, color="green", label="BEEMAN")
-    plt.scatter(times, verlet_values, marker='o', s=10, color="blue", label="VERLET")
-    plt.scatter(times, gear_values, marker='o', s=10, color="red", label="GEAR PREDICTOR CORRECTOR")
+    plt.scatter(times, beeman_values, marker='o', s=15, color="green", label="BEEMAN")
+    plt.scatter(times, verlet_values, marker='o', s=15, color="blue", label="VERLET")
+    plt.scatter(times, gear_values, marker='o', s=15, color="red", label="GEAR PREDICTOR CORRECTOR")
 
     plt.plot(times, beeman_values, color="green")
     plt.plot(times, verlet_values, color="blue")
@@ -73,7 +73,7 @@ def graph_error(data, static_data):
     plt.xscale("log")
 
     plt.xlabel(f'Δt (s)')
-    plt.ylabel(f'MSE (m²)')
+    plt.ylabel(f'ECM (m²)')
     plt.grid(True)
     plt.legend()
     plt.show()

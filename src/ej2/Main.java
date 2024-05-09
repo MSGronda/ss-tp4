@@ -24,9 +24,9 @@ public class Main {
         double cutoffTime = 2 * 365 * SECONDS_IN_DAY;
         double startTime = 173 * SECONDS_IN_DAY + 339 * SECONDS_IN_MINUTE;
 
-//        systemEnergyVsDeltaT( 2 * 365 * SECONDS_IN_DAY, 1000000);
-//        testStartingDays(deltaT, spaceshipOrbitSpeed, cutoffDistance, cutoffTime, 173 * SECONDS_IN_DAY + 5 * SECONDS_IN_HOUR, 173 * SECONDS_IN_DAY + 7 * SECONDS_IN_HOUR, deltaT);
-//        testStartingSpeed(173 * SECONDS_IN_DAY, deltaT, cutoffTime);
+        systemEnergyVsDeltaT( 2 * 365 * SECONDS_IN_DAY, 1000000);
+        testStartingDays(deltaT, spaceshipOrbitSpeed, cutoffDistance, cutoffTime, 173 * SECONDS_IN_DAY + 5 * SECONDS_IN_HOUR, 173 * SECONDS_IN_DAY + 7 * SECONDS_IN_HOUR, deltaT);
+        testStartingSpeed(173 * SECONDS_IN_DAY, deltaT, cutoffTime);
         simulateAndSave(deltaT, startTime, spaceshipOrbitSpeed, cutoffDistance, cutoffTime);
     }
 

@@ -58,8 +58,8 @@ def generate_speed_comparison():
 
 
 if __name__ == "__main__":
-    # system_energy_vs_delta_t()
-    # generate_starting_day_comparison()
+    system_energy_vs_delta_t()
+    generate_starting_day_comparison()
     generate_animation()
-    # generate_mission_data()
-    # generate_speed_comparison()
+    generate_mission_data()
+    generate_speed_comparison()
