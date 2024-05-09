@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Util {
-    public static Body generateSun(){
+    public static Body generateSun() {
         return new Body(
                 0,
                 0,
@@ -31,7 +31,7 @@ public class Util {
                 5.97219E24,
                 Body.BodyType.EARTH
         );
-        resp[1]  = new Body(
+        resp[1] = new Body(
                 1.758500774292310E+08,
                 -1.086968363813986E+08,
                 1.365943796448699E+01,
@@ -56,7 +56,7 @@ public class Util {
                 5.97219E24,
                 Body.BodyType.EARTH
         );
-        resp[1]  = new Body(
+        resp[1] = new Body(
                 1.758500774292310E+08,
                 -1.086968363813986E+08,
                 1.365943796448699E+01,
@@ -78,7 +78,7 @@ public class Util {
         return resp;
     }
 
-    public static Body generateSpaceship(Body sun, Body earth, double spaceshipOrbitDistance, double spaceshipOrbitalSpeed){
+    public static Body generateSpaceship(Body sun, Body earth, double spaceshipOrbitDistance, double spaceshipOrbitalSpeed) {
 
         double xNormalVersor = sun.normalX(earth);
         double yNormalVersor = sun.normalY(earth);
@@ -89,10 +89,10 @@ public class Util {
         double y = earth.getY() + yNormalVersor * (spaceshipOrbitDistance + earth.getR());
 
         double cvx = xTangVersor * spaceshipOrbitalSpeed;
-        double vx = earth.getVx() + (cvx * earth.getVx() > 0 ? cvx  : - cvx);
+        double vx = earth.getVx() + (cvx * earth.getVx() > 0 ? cvx : -cvx);
 
         double cvy = yTangVersor * spaceshipOrbitalSpeed;
-        double vy = earth.getVy() + (cvy * earth.getVy() > 0 ? cvy  : - cvy);
+        double vy = earth.getVy() + (cvy * earth.getVy() > 0 ? cvy : -cvy);
 
         return new Body(
                 x,
@@ -105,7 +105,7 @@ public class Util {
         );
     }
 
-    public static Body[] generateAllBodies(double spaceshipOrbitDistance, double spaceshipOrbitalSpeed){
+    public static Body[] generateAllBodies(double spaceshipOrbitDistance, double spaceshipOrbitalSpeed) {
         Body[] bodies = Util.generateCelestialBodies();
 
         Body[] resp = new Body[bodies.length + 1];
@@ -119,47 +119,50 @@ public class Util {
         return resp;
     }
 
-    public static void dumpMap(ConcurrentHashMap<Double, Double> map, String filename){
-        try(FileWriter writer = new FileWriter(filename)){
+    public static void dumpMap(ConcurrentHashMap<Double, Double> map, String filename) {
+        try (FileWriter writer = new FileWriter(filename)) {
             map.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(e ->
                     {
                         try {
-                            writer.write(e.getKey() + "," + e.getValue() + "\n" );
+                            writer.write(e.getKey() + "," + e.getValue() + "\n");
                         } catch (IOException ex) {
-                            System.out.println(ex);;
+                            System.out.println(ex);
+                            ;
                         }
                     }
             );
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             System.out.println(e);
         }
     }
 
     public static void dumpPositions(double time, Body[] bodies, FileWriter fileWriter) throws IOException {
         fileWriter.write(time + "\n");
-        for(int i=0; i<bodies.length; i++){
+        for (int i = 0; i < bodies.length; i++) {
             // No se modifica a la posicion y velocidad del sol => no nos importa la fuerza que se aplica sobre el sol
 
             Body body = bodies[i];
 
-            if(body.getType() == Body.BodyType.SUN){ continue; }
+            if (body.getType() == Body.BodyType.SUN) {
+                continue;
+            }
 
             fileWriter.write(body.toString() + "\n");
         }
     }
 
     public static void writeStaticData(Body[] bodies, double deltaT, double spaceshipOrbitSpeed, double spaceshipOrbitElevation, long timestamp) {
-        try(FileWriter writer = new FileWriter("./python/ej2/output-files/properties-" + timestamp + ".csv")){
+        try (FileWriter writer = new FileWriter("./python/ej2/output-files/properties-" + timestamp + ".csv")) {
             writer.write("deltaT," + deltaT + "\n");
             writer.write("spaceshipOrbitDistance," + spaceshipOrbitElevation + "\n");
             writer.write("spaceshipOrbitSpeed," + spaceshipOrbitSpeed + "\n");
-            for(int i=0; i<bodies.length; i++){
+            for (int i = 0; i < bodies.length; i++) {
                 Body body = bodies[i];
                 writer.write(body.getType().name() + "," + i + "," + body.getM() + "," + body.getR() + "\n");
             }
         } catch (IOException e) {
-            System.out.println(e);;
+            System.out.println(e);
+            ;
         }
     }
 }

@@ -107,7 +107,7 @@ public class Simulation {
     }
 
     // Si esta Jupiter calcula con ese, sino con Marte
-    public boolean spaceShipCloseToObjective(double distance, Body.BodyType objective){
+    public boolean spaceShipCloseToObjective(double distance, Body.BodyType objective) {
         Body spaceship = getBody(Body.BodyType.SPACESHIP).get();
         Body obj = getBody(objective).get();
         return obj.distanceFrom(spaceship) <= obj.getR() + distance;

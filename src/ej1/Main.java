@@ -14,7 +14,7 @@ public class Main {
 
         double[] deltaTs = {0.000001, 0.00001, 0.0001, 0.001, 0.01};
 
-        for (double i : deltaTs ) {
+        for (double i : deltaTs) {
             deltaT = i;
             long timestamp = System.currentTimeMillis();
 
@@ -38,15 +38,14 @@ public class Main {
         }
     }
 
-    private static void writeStaticFile(double mass, double springConstant, double gamma, double deltaT, SimulationType type, long timestamp){
-        try(FileWriter writer = new FileWriter("./python/ej1/output-files/static-data-" + timestamp + ".csv")) {
+    private static void writeStaticFile(double mass, double springConstant, double gamma, double deltaT, SimulationType type, long timestamp) {
+        try (FileWriter writer = new FileWriter("./python/ej1/output-files/static-data-" + timestamp + ".csv")) {
             writer.write("mass," + mass + "\n");
             writer.write("springConstant," + springConstant + "\n");
             writer.write("gamma," + gamma + "\n");
             writer.write("deltaT," + deltaT + "\n");
             writer.write("type," + type.name() + "\n");
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             System.out.println(e);
         }
     }
